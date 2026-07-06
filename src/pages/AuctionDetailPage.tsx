@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
-  MapPin, Calendar, DollarSign, Shield, Maximize2,
+  MapPin, Calendar, Shield, Maximize2,
   Bed, Bath, Car, ArrowLeft, Share2, ChevronLeft,
   ChevronRight, Clock, Home, Building2, CheckCircle,
 } from 'lucide-react';

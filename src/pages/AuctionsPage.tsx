@@ -1,11 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, X, ChevronDown, LayoutGrid, List } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { getAuctions } from '../data/auctions';
 import { PROPERTY_TYPES, REGIONS } from '../utils/format';
 import AuctionCard from '../components/AuctionCard';
 import { Auction } from '../types';
-import clsx from 'clsx';
 
 type SortOption = 'date-asc' | 'date-desc' | 'price-asc' | 'price-desc' | 'newest';
 
