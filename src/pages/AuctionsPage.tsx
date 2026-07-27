@@ -8,6 +8,14 @@ import { Auction, AuctionCategory } from '../types';
 
 type SortOption = 'date-asc' | 'date-desc' | 'price-asc' | 'price-desc' | 'newest';
 
+const PRICE_RANGES = [
+  { label: 'Cualquier precio', min: 0, max: Infinity },
+  { label: 'Hasta UF 1.000 / $10M', min: 0, max: 10000000 },
+  { label: 'UF 1.000 – 3.000', min: 1000, max: 3000 },
+  { label: 'UF 3.000 – 8.000', min: 3000, max: 8000 },
+  { label: 'Más de UF 8.000 / $50M+', min: 8000, max: Infinity },
+];
+
 const CATEGORY_ICONS: Record<AuctionCategory, React.ReactNode> = {
   'Inmuebles': <Building2 className="w-5 h-5" />,
   'Vehículos': <Car className="w-5 h-5" />,
@@ -21,6 +29,7 @@ export default function AuctionsPage() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<Auction['status'] | ''>('');
+  const [selectedPriceRange, setSelectedPriceRange] = useState(0);
   const [sortBy, setSortBy] = useState<SortOption>('date-asc');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -75,6 +84,14 @@ export default function AuctionsPage() {
       result = result.filter(a => a.status === selectedStatus);
     }
 
+    if (selectedPriceRange > 0) {
+      const range = PRICE_RANGES[selectedPriceRange];
+      result = result.filter(a => {
+        const price = a.currency === 'UF' ? a.minPrice : a.minPrice / 38000;
+        return price >= range.min && price <= range.max;
+      });
+    }
+
     result.sort((a, b) => {
       switch (sortBy) {
         case 'date-asc': return a.auctionDate.localeCompare(b.auctionDate);
@@ -87,7 +104,7 @@ export default function AuctionsPage() {
     });
 
     return result;
-  }, [allAuctions, search, selectedCategory, selectedTypes, selectedRegion, selectedStatus, sortBy]);
+  }, [allAuctions, search, selectedCategory, selectedTypes, selectedRegion, selectedStatus, selectedPriceRange, sortBy]);
 
   const toggleType = (type: string) => {
     setSelectedTypes(prev =>
@@ -101,9 +118,10 @@ export default function AuctionsPage() {
     setSelectedTypes([]);
     setSelectedRegion('');
     setSelectedStatus('');
+    setSelectedPriceRange(0);
   };
 
-  const hasFilters = search || selectedCategory || selectedTypes.length > 0 || selectedRegion || selectedStatus;
+  const hasFilters = search || selectedCategory || selectedTypes.length > 0 || selectedRegion || selectedStatus || selectedPriceRange > 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -211,6 +229,24 @@ export default function AuctionsPage() {
                   ))}
                 </FilterSection>
               )}
+
+              {/* Price range */}
+              <FilterSection title="Rango de precio">
+                <div className="space-y-1.5">
+                  {PRICE_RANGES.map((range, i) => (
+                    <label key={i} className="flex items-center gap-2.5 cursor-pointer group">
+                      <input
+                        type="radio"
+                        name="price"
+                        checked={selectedPriceRange === i}
+                        onChange={() => setSelectedPriceRange(i)}
+                        className="accent-brand-purple-500"
+                      />
+                      <span className="text-sm text-gray-600 group-hover:text-gray-900">{range.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </FilterSection>
 
               {/* Region */}
               <FilterSection title="Región">
@@ -335,6 +371,11 @@ export default function AuctionsPage() {
                 {selectedStatus && (
                   <button onClick={() => setSelectedStatus('')} className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium hover:bg-green-200 transition-colors">
                     {selectedStatus} <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                {selectedPriceRange > 0 && (
+                  <button onClick={() => setSelectedPriceRange(0)} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium hover:bg-amber-200 transition-colors">
+                    {PRICE_RANGES[selectedPriceRange].label} <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>

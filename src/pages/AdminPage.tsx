@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Plus, Pencil, Trash2, Eye, Search, X, Save,
-  ChevronLeft, LayoutGrid, CheckCircle, AlertTriangle, FileText,
+  ChevronLeft, LayoutGrid, CheckCircle, AlertTriangle, FileText, LogOut,
 } from 'lucide-react';
+import { logout } from '../utils/auth';
 import { getAuctions, addAuction, updateAuction, deleteAuction, resetToSampleData } from '../data/auctions';
 import { Auction, PropertyType, AuctionStatus, Currency, AuctionCategory } from '../types';
 import { formatPrice, formatDate, PROPERTY_TYPES, REGIONS, OCCUPATION_TYPES, CATEGORY_PROPERTY_TYPES, AUCTION_CATEGORIES } from '../utils/format';
@@ -36,6 +37,7 @@ const EMPTY_FORM: Omit<Auction, 'id' | 'createdAt'> = {
 };
 
 export default function AdminPage() {
+  const navigate = useNavigate();
   const [view, setView] = useState<AdminView>('list');
   const [auctions, setAuctions] = useState(getAuctions);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -151,6 +153,13 @@ export default function AdminPage() {
                 </button>
                 <button onClick={openAdd} className="flex items-center gap-2 px-5 py-3 bg-white text-brand-purple-600 font-bold rounded-2xl hover:bg-blue-50 transition-colors shadow-lg">
                   <Plus className="w-5 h-5" /> Nueva subasta
+                </button>
+                <button
+                  onClick={() => { logout(); navigate('/'); }}
+                  title="Cerrar sesión"
+                  className="p-3 bg-white/20 text-white rounded-2xl hover:bg-white/30 transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
                 </button>
               </div>
             </div>

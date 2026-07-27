@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, LogOut } from 'lucide-react';
 import clsx from 'clsx';
+import { isAuthenticated, logout } from '../../utils/auth';
 
 const NAV_LINKS = [
   { to: '/', label: 'Inicio' },
   { to: '/subastas', label: 'Subastas' },
+  { to: '/adjudicados', label: 'Adjudicados' },
+  { to: '/como-funciona', label: 'Cómo funciona' },
   { to: '/nosotros', label: 'Nosotros' },
   { to: '/contacto', label: 'Contacto' },
 ];
@@ -13,7 +16,9 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [authed, setAuthed] = useState(isAuthenticated());
   const location = useLocation();
+  const navigate = useNavigate();
   const isHome = location.pathname === '/';
 
   useEffect(() => {
@@ -24,30 +29,25 @@ export default function Navbar() {
 
   useEffect(() => {
     setMenuOpen(false);
+    setAuthed(isAuthenticated());
   }, [location]);
 
-  const navBg = isHome && !scrolled
-    ? 'bg-transparent'
-    : 'bg-white shadow-md';
+  const handleLogout = () => {
+    logout();
+    setAuthed(false);
+    navigate('/');
+  };
 
+  const navBg = isHome && !scrolled ? 'bg-transparent' : 'bg-white shadow-md';
   const textColor = isHome && !scrolled ? 'text-white' : 'text-gray-800';
 
   return (
-    <header
-      className={clsx(
-        'fixed top-0 inset-x-0 z-50 transition-all duration-300',
-        navBg,
-      )}
-    >
+    <header className={clsx('fixed top-0 inset-x-0 z-50 transition-all duration-300', navBg)}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center flex-shrink-0">
-            <img
-              src="/logo.png"
-              alt="LaMartillera.cl"
-              className="h-14 w-auto"
-            />
+            <img src="/logo.png" alt="LaMartillera.cl" className="h-14 w-auto" />
           </Link>
 
           {/* Desktop nav */}
@@ -59,7 +59,7 @@ export default function Navbar() {
                 end={link.to === '/'}
                 className={({ isActive }) =>
                   clsx(
-                    'px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200',
+                    'px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200',
                     isActive
                       ? (isHome && !scrolled ? 'bg-white/20 text-white' : 'bg-brand-purple-50 text-brand-purple-600')
                       : clsx('hover:bg-white/10', textColor),
@@ -86,12 +86,34 @@ export default function Navbar() {
             >
               Inscríbete
             </a>
-            <Link
-              to="/admin"
-              className="px-5 py-2.5 bg-gradient-to-r from-brand-blue-500 to-brand-purple-500 text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg"
-            >
-              Administrar
-            </Link>
+
+            {authed ? (
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/admin"
+                  className="px-5 py-2.5 bg-gradient-to-r from-brand-blue-500 to-brand-purple-500 text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg"
+                >
+                  Administrar
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  title="Cerrar sesión"
+                  className={clsx(
+                    'p-2.5 rounded-xl transition-colors',
+                    isHome && !scrolled ? 'text-white hover:bg-white/20' : 'text-gray-500 hover:bg-gray-100'
+                  )}
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="px-5 py-2.5 bg-gradient-to-r from-brand-blue-500 to-brand-purple-500 text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg"
+              >
+                Administrar
+              </Link>
+            )}
           </div>
 
           {/* Mobile toggle */}
@@ -117,9 +139,7 @@ export default function Navbar() {
                 className={({ isActive }) =>
                   clsx(
                     'px-4 py-3 rounded-xl font-medium transition-colors',
-                    isActive
-                      ? 'bg-brand-purple-50 text-brand-purple-600'
-                      : 'text-gray-700 hover:bg-gray-50',
+                    isActive ? 'bg-brand-purple-50 text-brand-purple-600' : 'text-gray-700 hover:bg-gray-50',
                   )
                 }
               >
@@ -135,9 +155,20 @@ export default function Navbar() {
               >
                 Inscríbete en subasta
               </a>
-              <Link to="/admin" className="btn-secondary text-center justify-center">
-                Panel de Administración
-              </Link>
+              {authed ? (
+                <>
+                  <Link to="/admin" className="btn-secondary text-center justify-center">
+                    Panel de Administración
+                  </Link>
+                  <button onClick={handleLogout} className="flex items-center justify-center gap-2 py-3 text-sm text-gray-500 hover:text-gray-700">
+                    <LogOut className="w-4 h-4" /> Cerrar sesión
+                  </button>
+                </>
+              ) : (
+                <Link to="/login" className="btn-secondary text-center justify-center">
+                  Administrar
+                </Link>
+              )}
             </div>
           </div>
         </div>
