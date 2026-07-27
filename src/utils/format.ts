@@ -1,6 +1,6 @@
 import { Auction, AuctionCategory } from '../types';
 
-export const WHATSAPP_NUMBER = '56912345678'; // Reemplaza con el número real
+export const WHATSAPP_NUMBER = '56995089648';
 
 export function formatPrice(auction: Auction): string {
   if (auction.currency === 'UF') {

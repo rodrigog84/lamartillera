@@ -4,7 +4,7 @@ import {
   Plus, Pencil, Trash2, Eye, Search, X, Save,
   ChevronLeft, LayoutGrid, CheckCircle, AlertTriangle, FileText,
 } from 'lucide-react';
-import { getAuctions, addAuction, updateAuction, deleteAuction } from '../data/auctions';
+import { getAuctions, addAuction, updateAuction, deleteAuction, resetToSampleData } from '../data/auctions';
 import { Auction, PropertyType, AuctionStatus, Currency, AuctionCategory } from '../types';
 import { formatPrice, formatDate, PROPERTY_TYPES, REGIONS, OCCUPATION_TYPES, CATEGORY_PROPERTY_TYPES, AUCTION_CATEGORIES } from '../utils/format';
 import clsx from 'clsx';
@@ -141,9 +141,18 @@ export default function AdminPage() {
                 <h1 className="text-3xl font-black text-white">Panel de Administración</h1>
                 <p className="text-blue-200 mt-1">{auctions.length} subasta{auctions.length !== 1 ? 's' : ''} en total</p>
               </div>
-              <button onClick={openAdd} className="flex items-center gap-2 px-5 py-3 bg-white text-brand-purple-600 font-bold rounded-2xl hover:bg-blue-50 transition-colors shadow-lg">
-                <Plus className="w-5 h-5" /> Nueva subasta
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => { resetToSampleData(); refresh(); }}
+                  className="flex items-center gap-2 px-4 py-3 bg-white/20 text-white font-medium rounded-2xl hover:bg-white/30 transition-colors text-sm"
+                  title="Restaura los datos de ejemplo originales"
+                >
+                  Restablecer ejemplos
+                </button>
+                <button onClick={openAdd} className="flex items-center gap-2 px-5 py-3 bg-white text-brand-purple-600 font-bold rounded-2xl hover:bg-blue-50 transition-colors shadow-lg">
+                  <Plus className="w-5 h-5" /> Nueva subasta
+                </button>
+              </div>
             </div>
           </div>
         </div>
