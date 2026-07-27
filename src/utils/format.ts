@@ -1,4 +1,6 @@
-import { Auction } from '../types';
+import { Auction, AuctionCategory } from '../types';
+
+export const WHATSAPP_NUMBER = '56912345678'; // Reemplaza con el número real
 
 export function formatPrice(auction: Auction): string {
   if (auction.currency === 'UF') {
@@ -47,16 +49,18 @@ export const REGIONS = [
   'XVI - Ñuble',
 ];
 
+export const CATEGORY_PROPERTY_TYPES: Record<AuctionCategory, string[]> = {
+  'Inmuebles': ['Casa', 'Departamento', 'Parcela', 'Terreno', 'Bodega', 'Local Comercial', 'Oficina', 'Edificio'],
+  'Vehículos': ['Auto', 'Camioneta', 'Camión', 'Moto', 'Maquinaria'],
+  'Bienes Muebles': ['Muebles y Equipamiento', 'Lote Mixto', 'Otro'],
+};
+
 export const PROPERTY_TYPES = [
-  'Casa',
-  'Departamento',
-  'Parcela',
-  'Terreno',
-  'Bodega',
-  'Local Comercial',
-  'Oficina',
-  'Edificio',
-  'Otro',
+  ...CATEGORY_PROPERTY_TYPES['Inmuebles'],
+  ...CATEGORY_PROPERTY_TYPES['Vehículos'],
+  ...CATEGORY_PROPERTY_TYPES['Bienes Muebles'],
 ];
 
 export const OCCUPATION_TYPES = ['Desocupada', 'Ocupada', 'Arrendada'] as const;
+
+export const AUCTION_CATEGORIES: AuctionCategory[] = ['Inmuebles', 'Vehículos', 'Bienes Muebles'];

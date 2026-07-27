@@ -7,6 +7,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     address: 'Av. Providencia 1234, Depto. 801',
     commune: 'Providencia',
     region: 'RM - Metropolitana',
+    category: 'Inmuebles',
     propertyType: 'Departamento',
     status: 'Disponible',
     minPrice: 3200,
@@ -25,6 +26,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     occupation: 'Desocupada',
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
+    documents: {},
     createdAt: '2026-06-01T10:00:00Z',
   },
   {
@@ -33,6 +35,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     address: 'Los Arrayanes 456',
     commune: 'Las Condes',
     region: 'RM - Metropolitana',
+    category: 'Inmuebles',
     propertyType: 'Casa',
     status: 'Disponible',
     minPrice: 8500,
@@ -51,6 +54,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     occupation: 'Desocupada',
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
+    documents: {},
     createdAt: '2026-06-02T10:00:00Z',
   },
   {
@@ -59,6 +63,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     address: 'Camino Los Lagos Km 12',
     commune: 'Puerto Varas',
     region: 'X - Los Lagos',
+    category: 'Inmuebles',
     propertyType: 'Parcela',
     status: 'Disponible',
     minPrice: 1200,
@@ -74,6 +79,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     occupation: 'Desocupada',
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
+    documents: {},
     createdAt: '2026-06-03T10:00:00Z',
   },
   {
@@ -82,6 +88,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     address: 'Paseo Ahumada 321, Local 5',
     commune: 'Santiago',
     region: 'RM - Metropolitana',
+    category: 'Inmuebles',
     propertyType: 'Local Comercial',
     status: 'Disponible',
     minPrice: 45000000,
@@ -96,6 +103,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     occupation: 'Arrendada',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
+    documents: {},
     createdAt: '2026-06-04T10:00:00Z',
   },
   {
@@ -104,6 +112,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     address: 'Av. El Bosque Norte 500, Of. 1201',
     commune: 'Las Condes',
     region: 'RM - Metropolitana',
+    category: 'Inmuebles',
     propertyType: 'Oficina',
     status: 'Disponible',
     minPrice: 2800,
@@ -118,6 +127,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     occupation: 'Desocupada',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
+    documents: {},
     createdAt: '2026-06-05T10:00:00Z',
   },
   {
@@ -126,6 +136,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     address: 'Maipú 890, Depto. 504',
     commune: 'Valparaíso',
     region: 'V - Valparaíso',
+    category: 'Inmuebles',
     propertyType: 'Departamento',
     status: 'Próximamente',
     minPrice: 1800,
@@ -142,6 +153,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     occupation: 'Desocupada',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
+    documents: {},
     createdAt: '2026-06-06T10:00:00Z',
   },
 ];
@@ -152,7 +164,9 @@ export function getAuctions(): Auction[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored) as Auction[];
+      const parsed = JSON.parse(stored) as Auction[];
+      // Migrate old records that don't have category
+      return parsed.map(a => ({ ...a, category: a.category ?? ('Inmuebles' as const), documents: a.documents ?? {} }));
     }
   } catch {
     // ignore parse errors

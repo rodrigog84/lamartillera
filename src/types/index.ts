@@ -1,4 +1,7 @@
+export type AuctionCategory = 'Inmuebles' | 'Vehículos' | 'Bienes Muebles';
+
 export type PropertyType =
+  // Inmuebles
   | 'Casa'
   | 'Departamento'
   | 'Parcela'
@@ -7,11 +10,27 @@ export type PropertyType =
   | 'Local Comercial'
   | 'Oficina'
   | 'Edificio'
+  // Vehículos
+  | 'Auto'
+  | 'Camioneta'
+  | 'Camión'
+  | 'Moto'
+  | 'Maquinaria'
+  // Bienes Muebles
+  | 'Muebles y Equipamiento'
+  | 'Lote Mixto'
   | 'Otro';
 
 export type AuctionStatus = 'Disponible' | 'Adjudicada' | 'Próximamente';
 
 export type Currency = 'CLP' | 'UF';
+
+export interface AuctionDocument {
+  basesDelRemate?: string;
+  cdv?: string;
+  cav?: string;
+  gravamenes?: string;
+}
 
 export interface Auction {
   id: string;
@@ -19,6 +38,7 @@ export interface Auction {
   address: string;
   commune: string;
   region: string;
+  category: AuctionCategory;
   propertyType: PropertyType;
   status: AuctionStatus;
   minPrice: number;
@@ -34,5 +54,6 @@ export interface Auction {
   occupation: 'Desocupada' | 'Ocupada' | 'Arrendada';
   featured: boolean;
   externalRegistrationUrl: string;
+  documents?: AuctionDocument;
   createdAt: string;
 }

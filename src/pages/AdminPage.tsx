@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Plus, Pencil, Trash2, Eye, Search, X, Save,
-  ChevronLeft, LayoutGrid, CheckCircle, AlertTriangle,
+  ChevronLeft, LayoutGrid, CheckCircle, AlertTriangle, FileText,
 } from 'lucide-react';
 import { getAuctions, addAuction, updateAuction, deleteAuction } from '../data/auctions';
-import { Auction, PropertyType, AuctionStatus, Currency } from '../types';
-import { formatPrice, formatDate, PROPERTY_TYPES, REGIONS, OCCUPATION_TYPES } from '../utils/format';
+import { Auction, PropertyType, AuctionStatus, Currency, AuctionCategory } from '../types';
+import { formatPrice, formatDate, PROPERTY_TYPES, REGIONS, OCCUPATION_TYPES, CATEGORY_PROPERTY_TYPES, AUCTION_CATEGORIES } from '../utils/format';
 import clsx from 'clsx';
 
 type AdminView = 'list' | 'add' | 'edit';
@@ -16,6 +16,7 @@ const EMPTY_FORM: Omit<Auction, 'id' | 'createdAt'> = {
   address: '',
   commune: '',
   region: 'RM - Metropolitana',
+  category: 'Inmuebles',
   propertyType: 'Departamento',
   status: 'Disponible',
   minPrice: 0,
@@ -31,6 +32,7 @@ const EMPTY_FORM: Omit<Auction, 'id' | 'createdAt'> = {
   occupation: 'Desocupada',
   featured: false,
   externalRegistrationUrl: 'https://lamartillera.cl/registro',
+  documents: {},
 };
 
 export default function AdminPage() {
@@ -58,6 +60,7 @@ export default function AdminPage() {
   const openEdit = (a: Auction) => {
     setForm({
       title: a.title, address: a.address, commune: a.commune, region: a.region,
+      category: a.category ?? 'Inmuebles',
       propertyType: a.propertyType, status: a.status, minPrice: a.minPrice,
       currency: a.currency, guarantee: a.guarantee, auctionDate: a.auctionDate,
       images: a.images.length > 0 ? a.images : [''],
@@ -65,6 +68,7 @@ export default function AdminPage() {
       bedrooms: a.bedrooms, bathrooms: a.bathrooms, parkingSpaces: a.parkingSpaces,
       occupation: a.occupation, featured: a.featured,
       externalRegistrationUrl: a.externalRegistrationUrl,
+      documents: a.documents ?? {},
     });
     setEditingId(a.id);
     setView('edit');
@@ -102,6 +106,10 @@ export default function AdminPage() {
     setForm(f => ({ ...f, [key]: val }));
   };
 
+  const setDocField = (key: keyof NonNullable<Auction['documents']>, val: string) => {
+    setForm(f => ({ ...f, documents: { ...f.documents, [key]: val || undefined } }));
+  };
+
   const updateImage = (idx: number, val: string) => {
     const imgs = [...form.images];
     imgs[idx] = val;
@@ -113,6 +121,9 @@ export default function AdminPage() {
     const imgs = form.images.filter((_, i) => i !== idx);
     setForm(f => ({ ...f, images: imgs.length > 0 ? imgs : [''] }));
   };
+
+  // Contextual property types based on selected category
+  const availableTypes = CATEGORY_PROPERTY_TYPES[form.category] ?? PROPERTY_TYPES;
 
   /* ── List view ── */
   if (view === 'list') {
@@ -171,8 +182,8 @@ export default function AdminPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-100">
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Propiedad</th>
-                    <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Tipo</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Bien</th>
+                    <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Categoría</th>
                     <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Fecha</th>
                     <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Precio mín.</th>
                     <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Estado</th>
@@ -200,7 +211,10 @@ export default function AdminPage() {
                         </div>
                       </td>
                       <td className="px-4 py-4 hidden md:table-cell">
-                        <span className="badge bg-gray-100 text-gray-600">{auction.propertyType}</span>
+                        <div className="space-y-1">
+                          <span className="badge bg-brand-purple-100 text-brand-purple-700 block w-fit">{auction.category ?? 'Inmuebles'}</span>
+                          <span className="badge bg-gray-100 text-gray-600 block w-fit">{auction.propertyType}</span>
+                        </div>
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-600 hidden lg:table-cell">{formatDate(auction.auctionDate)}</td>
                       <td className="px-4 py-4">
@@ -308,18 +322,32 @@ export default function AdminPage() {
           {/* Basic info */}
           <FormSection title="Información básica">
             <div>
-              <label className="label">Título de la propiedad *</label>
+              <label className="label">Título del bien *</label>
               <input value={form.title} onChange={e => setField('title', e.target.value)} className="input" placeholder="Ej: Departamento céntrico con vista panorámica" />
             </div>
             <div>
               <label className="label">Descripción *</label>
-              <textarea value={form.description} onChange={e => setField('description', e.target.value)} rows={4} className="input resize-none" placeholder="Describe la propiedad…" />
+              <textarea value={form.description} onChange={e => setField('description', e.target.value)} rows={4} className="input resize-none" placeholder="Describe el bien a rematar…" />
             </div>
-            <div className="grid sm:grid-cols-2 gap-5">
+            <div className="grid sm:grid-cols-3 gap-5">
               <div>
-                <label className="label">Tipo de propiedad</label>
+                <label className="label">Categoría principal</label>
+                <select
+                  value={form.category}
+                  onChange={e => {
+                    const cat = e.target.value as AuctionCategory;
+                    const firstType = CATEGORY_PROPERTY_TYPES[cat][0] as PropertyType;
+                    setForm(f => ({ ...f, category: cat, propertyType: firstType }));
+                  }}
+                  className="input"
+                >
+                  {AUCTION_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="label">Tipo de bien</label>
                 <select value={form.propertyType} onChange={e => setField('propertyType', e.target.value as PropertyType)} className="input">
-                  {PROPERTY_TYPES.map(t => <option key={t}>{t}</option>)}
+                  {availableTypes.map(t => <option key={t}>{t}</option>)}
                 </select>
               </div>
               <div>
@@ -417,6 +445,32 @@ export default function AdminPage() {
                   Marcar como destacada
                 </label>
               </div>
+            </div>
+          </FormSection>
+
+          {/* Documents */}
+          <FormSection title="Documentación y Anexos">
+            <p className="text-sm text-gray-500 -mt-2">Ingresa las URLs de los PDFs. Deja en blanco si no aplica.</p>
+            <div className="grid sm:grid-cols-2 gap-5">
+              {[
+                { key: 'basesDelRemate' as const, label: 'Bases del Remate', placeholder: 'https://...' },
+                { key: 'cdv' as const, label: 'Certificado de Dominio Vigente (CDV)', placeholder: 'https://...' },
+                { key: 'cav' as const, label: 'Certificado de Anotaciones Vigentes (CAV)', placeholder: 'https://...' },
+                { key: 'gravamenes' as const, label: 'Impuesto / Gravámenes', placeholder: 'https://...' },
+              ].map(({ key, label, placeholder }) => (
+                <div key={key}>
+                  <label className="label flex items-center gap-2">
+                    <FileText className="w-3.5 h-3.5 text-gray-400" /> {label}
+                  </label>
+                  <input
+                    type="url"
+                    value={form.documents?.[key] ?? ''}
+                    onChange={e => setDocField(key, e.target.value)}
+                    className="input"
+                    placeholder={placeholder}
+                  />
+                </div>
+              ))}
             </div>
           </FormSection>
 

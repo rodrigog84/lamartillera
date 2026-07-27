@@ -1,33 +1,48 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ChevronDown, Building2, Car, Package } from 'lucide-react';
 import { getAuctions } from '../data/auctions';
-import { PROPERTY_TYPES, REGIONS } from '../utils/format';
+import { CATEGORY_PROPERTY_TYPES, REGIONS, AUCTION_CATEGORIES } from '../utils/format';
 import AuctionCard from '../components/AuctionCard';
-import { Auction } from '../types';
+import { Auction, AuctionCategory } from '../types';
 
 type SortOption = 'date-asc' | 'date-desc' | 'price-asc' | 'price-desc' | 'newest';
+
+const CATEGORY_ICONS: Record<AuctionCategory, React.ReactNode> = {
+  'Inmuebles': <Building2 className="w-5 h-5" />,
+  'Vehículos': <Car className="w-5 h-5" />,
+  'Bienes Muebles': <Package className="w-5 h-5" />,
+};
 
 export default function AuctionsPage() {
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<AuctionCategory | ''>('');
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<Auction['status'] | ''>('');
   const [sortBy, setSortBy] = useState<SortOption>('date-asc');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Apply type from query param
   useEffect(() => {
     const tipo = searchParams.get('tipo');
     if (tipo) {
-      const matched = PROPERTY_TYPES.find(t =>
-        t.toLowerCase() === tipo.toLowerCase() ||
-        t.toLowerCase().startsWith(tipo.toLowerCase().slice(0, -1))
-      );
-      if (matched) setSelectedTypes([matched]);
+      const cat = AUCTION_CATEGORIES.find(c => c.toLowerCase() === tipo.toLowerCase());
+      if (cat) {
+        setSelectedCategory(cat);
+      }
     }
   }, [searchParams]);
+
+  // When category changes, reset sub-type filter
+  const handleCategoryChange = (cat: AuctionCategory | '') => {
+    setSelectedCategory(cat);
+    setSelectedTypes([]);
+  };
+
+  const availableTypes = selectedCategory
+    ? CATEGORY_PROPERTY_TYPES[selectedCategory]
+    : [];
 
   const allAuctions = getAuctions();
 
@@ -42,6 +57,10 @@ export default function AuctionsPage() {
         a.region.toLowerCase().includes(q) ||
         a.address.toLowerCase().includes(q)
       );
+    }
+
+    if (selectedCategory) {
+      result = result.filter(a => (a.category ?? 'Inmuebles') === selectedCategory);
     }
 
     if (selectedTypes.length > 0) {
@@ -68,7 +87,7 @@ export default function AuctionsPage() {
     });
 
     return result;
-  }, [allAuctions, search, selectedTypes, selectedRegion, selectedStatus, sortBy]);
+  }, [allAuctions, search, selectedCategory, selectedTypes, selectedRegion, selectedStatus, sortBy]);
 
   const toggleType = (type: string) => {
     setSelectedTypes(prev =>
@@ -78,21 +97,22 @@ export default function AuctionsPage() {
 
   const clearFilters = () => {
     setSearch('');
+    setSelectedCategory('');
     setSelectedTypes([]);
     setSelectedRegion('');
     setSelectedStatus('');
   };
 
-  const hasFilters = search || selectedTypes.length > 0 || selectedRegion || selectedStatus;
+  const hasFilters = search || selectedCategory || selectedTypes.length > 0 || selectedRegion || selectedStatus;
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Page header */}
-      <div className="hero-gradient pt-24 pb-12">
+      <div className="hero-gradient pt-24 pb-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl font-black text-white mb-3">Subastas disponibles</h1>
           <p className="text-blue-100 text-lg">
-            {filtered.length} propiedad{filtered.length !== 1 ? 'es' : ''} encontrada{filtered.length !== 1 ? 's' : ''}
+            {filtered.length} bien{filtered.length !== 1 ? 'es' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
           </p>
 
           {/* Main search */}
@@ -100,7 +120,7 @@ export default function AuctionsPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
             <input
               type="text"
-              placeholder="Buscar por ciudad, región, dirección…"
+              placeholder="Buscar por nombre, ciudad, región…"
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full pl-12 pr-4 py-4 bg-white rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50 text-base shadow-lg"
@@ -113,6 +133,34 @@ export default function AuctionsPage() {
                 <X className="w-5 h-5" />
               </button>
             )}
+          </div>
+
+          {/* Category tabs */}
+          <div className="mt-6 flex gap-2 flex-wrap pb-0">
+            <button
+              onClick={() => handleCategoryChange('')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-t-xl font-semibold text-sm transition-all ${
+                selectedCategory === ''
+                  ? 'bg-white text-brand-purple-700 shadow-sm'
+                  : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
+            >
+              Todos
+            </button>
+            {AUCTION_CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => handleCategoryChange(cat)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-t-xl font-semibold text-sm transition-all ${
+                  selectedCategory === cat
+                    ? 'bg-white text-brand-purple-700 shadow-sm'
+                    : 'bg-white/20 text-white hover:bg-white/30'
+                }`}
+              >
+                {CATEGORY_ICONS[cat]}
+                {cat}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -147,20 +195,22 @@ export default function AuctionsPage() {
                 ))}
               </FilterSection>
 
-              {/* Property type */}
-              <FilterSection title="Tipo de propiedad">
-                {PROPERTY_TYPES.map(type => (
-                  <label key={type} className="flex items-center gap-2.5 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={selectedTypes.includes(type)}
-                      onChange={() => toggleType(type)}
-                      className="accent-brand-purple-500"
-                    />
-                    <span className="text-sm text-gray-600 group-hover:text-gray-900">{type}</span>
-                  </label>
-                ))}
-              </FilterSection>
+              {/* Property type (contextual) */}
+              {selectedCategory && availableTypes.length > 0 && (
+                <FilterSection title="Tipo">
+                  {availableTypes.map(type => (
+                    <label key={type} className="flex items-center gap-2.5 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={selectedTypes.includes(type)}
+                        onChange={() => toggleType(type)}
+                        className="accent-brand-purple-500"
+                      />
+                      <span className="text-sm text-gray-600 group-hover:text-gray-900">{type}</span>
+                    </label>
+                  ))}
+                </FilterSection>
+              )}
 
               {/* Region */}
               <FilterSection title="Región">
@@ -190,7 +240,7 @@ export default function AuctionsPage() {
                 Filtros
                 {hasFilters && (
                   <span className="w-5 h-5 bg-brand-purple-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {[search, ...selectedTypes, selectedRegion, selectedStatus].filter(Boolean).length}
+                    {[search, selectedCategory, ...selectedTypes, selectedRegion, selectedStatus].filter(Boolean).length}
                   </span>
                 )}
               </button>
@@ -240,17 +290,19 @@ export default function AuctionsPage() {
                       ))}
                     </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Tipo</p>
-                    <div className="space-y-2">
-                      {PROPERTY_TYPES.map(type => (
-                        <label key={type} className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" checked={selectedTypes.includes(type)} onChange={() => toggleType(type)} className="accent-brand-purple-500" />
-                          <span className="text-sm">{type}</span>
-                        </label>
-                      ))}
+                  {selectedCategory && availableTypes.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Tipo</p>
+                      <div className="space-y-2">
+                        {availableTypes.map(type => (
+                          <label key={type} className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={selectedTypes.includes(type)} onChange={() => toggleType(type)} className="accent-brand-purple-500" />
+                            <span className="text-sm">{type}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Región</p>
                     <select value={selectedRegion} onChange={e => setSelectedRegion(e.target.value)} className="input text-sm">
@@ -265,6 +317,11 @@ export default function AuctionsPage() {
             {/* Active filter chips */}
             {hasFilters && (
               <div className="flex flex-wrap gap-2 mb-6">
+                {selectedCategory && (
+                  <button onClick={() => handleCategoryChange('')} className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-purple-500 text-white rounded-full text-xs font-medium hover:bg-brand-purple-600 transition-colors">
+                    {selectedCategory} <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
                 {selectedTypes.map(t => (
                   <button key={t} onClick={() => toggleType(t)} className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-purple-100 text-brand-purple-700 rounded-full text-xs font-medium hover:bg-brand-purple-200 transition-colors">
                     {t} <X className="w-3.5 h-3.5" />
