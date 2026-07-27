@@ -1,11 +1,9 @@
 const SESSION_KEY = 'lm_admin_session';
 
-// Credenciales locales — cámbialo cuando tengas backend real
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'martillera2026';
-
+// Modo maqueta: cualquier usuario y contraseña no vacíos son aceptados.
+// Reemplazar por validación real cuando se integre un backend.
 export function login(username: string, password: string): boolean {
-  if (username === ADMIN_USER && password === ADMIN_PASS) {
+  if (username.trim() && password.trim()) {
     sessionStorage.setItem(SESSION_KEY, 'true');
     return true;
   }

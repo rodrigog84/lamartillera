@@ -97,9 +97,13 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-xs text-gray-400 mt-6">
-            Solo personal autorizado. Si olvidaste tus credenciales, contacta al administrador del sistema.
-          </p>
+          {/* Mockup notice */}
+          <div className="mt-6 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-center">
+            <p className="text-xs font-semibold text-amber-700 mb-0.5">Versión maqueta</p>
+            <p className="text-xs text-amber-600">
+              Puedes ingresar con cualquier usuario y contraseña.
+            </p>
+          </div>
         </div>
       </div>
     </div>

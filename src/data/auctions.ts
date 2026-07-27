@@ -457,19 +457,29 @@ export const SAMPLE_AUCTIONS: Auction[] = [
 ];
 
 const STORAGE_KEY = 'lamartillera_auctions';
+const STORAGE_VERSION_KEY = 'lamartillera_version';
+const CURRENT_VERSION = '3'; // incrementar al agregar nuevos datos de muestra
 
 export function getAuctions(): Auction[] {
   try {
+    const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY);
+    // Si la versión es distinta, resetear automáticamente con los datos de muestra actuales
+    if (storedVersion !== CURRENT_VERSION) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_AUCTIONS));
+      localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION);
+      return SAMPLE_AUCTIONS;
+    }
+
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored) as Auction[];
-      // Migrate old records that don't have category
       return parsed.map(a => ({ ...a, category: a.category ?? ('Inmuebles' as const), documents: a.documents ?? {} }));
     }
   } catch {
     // ignore parse errors
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_AUCTIONS));
+  localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION);
   return SAMPLE_AUCTIONS;
 }
 
@@ -507,4 +517,5 @@ export function deleteAuction(id: string): boolean {
 
 export function resetToSampleData(): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_AUCTIONS));
+  localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION);
 }
