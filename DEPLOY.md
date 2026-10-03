@@ -8,13 +8,40 @@
 
 ---
 
-## 1. Actualizar el sitio (flujo normal)
+## Estrategia de ramas (dos versiones)
 
-Cada vez que hagas cambios en el código:
+El proyecto usa **dos ramas Git**:
+
+| Rama      | Qué contiene                          | Se despliega en |
+|-----------|---------------------------------------|-----------------|
+| `main`    | Página "Próximamente" (lanzamiento marzo 2027) | lamartillera.cl |
+| `develop` | Sitio completo en desarrollo          | Solo local      |
+
+**Flujo diario de trabajo:**
+```powershell
+# Siempre trabaja en develop
+git checkout develop
+# ...haces cambios...
+git add -A
+git commit -m "descripción del cambio"
+```
+
+**Cuando llegue marzo 2027 (lanzamiento):**
+```powershell
+git checkout main
+git merge develop
+npm run build
+scp -r dist/* root@206.81.12.137:/var/www/lamartillera/
+```
+
+---
+
+## 1. Actualizar el sitio público (solo desde `main`)
 
 ```powershell
-# 1. Ir a la carpeta del proyecto
+# 1. Asegurarte de estar en main
 cd "c:\LabCursor\La Martillera"
+git checkout main
 
 # 2. Compilar la app
 npm run build
@@ -24,6 +51,8 @@ scp -r dist/* root@206.81.12.137:/var/www/lamartillera/
 ```
 
 Listo. No necesitas reiniciar Nginx — los archivos estáticos se sirven directamente.
+
+> ⚠️  **Nunca hagas build y deploy desde `develop`** — subiría el sitio incompleto al público.
 
 ---
 
