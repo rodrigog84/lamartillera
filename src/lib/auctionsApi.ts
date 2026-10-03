@@ -1,5 +1,8 @@
 import { supabase } from './supabase';
 import { Auction, AuctionCategory, AuctionStatus, Currency, PropertyType } from '../types';
+import { getMockAuctions, saveMockAuctions } from '../data/mockAuctions';
+
+const MOCK = import.meta.env.VITE_MOCK_MODE === 'true';
 
 // ── Tipo que representa una fila de la base de datos ──
 type AuctionRow = {
@@ -31,7 +34,6 @@ type AuctionRow = {
   created_at: string;
 };
 
-// ── Mapeo DB → App ──
 function rowToAuction(row: AuctionRow): Auction {
   return {
     id: row.id,
@@ -65,7 +67,6 @@ function rowToAuction(row: AuctionRow): Auction {
   };
 }
 
-// ── Mapeo App → DB (para inserts/updates) ──
 function auctionToRow(a: Omit<Auction, 'id' | 'createdAt'>) {
   return {
     title: a.title,
@@ -98,6 +99,8 @@ function auctionToRow(a: Omit<Auction, 'id' | 'createdAt'>) {
 // ── CRUD ──
 
 export async function fetchAuctions(): Promise<Auction[]> {
+  if (MOCK) return getMockAuctions();
+
   const { data, error } = await supabase
     .from('auctions')
     .select('*')
@@ -108,6 +111,8 @@ export async function fetchAuctions(): Promise<Auction[]> {
 }
 
 export async function fetchAuction(id: string): Promise<Auction | null> {
+  if (MOCK) return getMockAuctions().find(a => a.id === id) ?? null;
+
   const { data, error } = await supabase
     .from('auctions')
     .select('*')
@@ -119,6 +124,13 @@ export async function fetchAuction(id: string): Promise<Auction | null> {
 }
 
 export async function createAuction(auction: Omit<Auction, 'id' | 'createdAt'>): Promise<Auction> {
+  if (MOCK) {
+    const newAuction: Auction = { ...auction, id: Date.now().toString(), createdAt: new Date().toISOString() };
+    const all = getMockAuctions();
+    saveMockAuctions([newAuction, ...all]);
+    return newAuction;
+  }
+
   const { data, error } = await supabase
     .from('auctions')
     .insert(auctionToRow(auction))
@@ -130,6 +142,15 @@ export async function createAuction(auction: Omit<Auction, 'id' | 'createdAt'>):
 }
 
 export async function updateAuction(id: string, updates: Omit<Auction, 'id' | 'createdAt'>): Promise<Auction> {
+  if (MOCK) {
+    const all = getMockAuctions();
+    const idx = all.findIndex(a => a.id === id);
+    if (idx === -1) throw new Error('Not found');
+    all[idx] = { ...all[idx], ...updates };
+    saveMockAuctions(all);
+    return all[idx];
+  }
+
   const { data, error } = await supabase
     .from('auctions')
     .update(auctionToRow(updates))
@@ -142,6 +163,11 @@ export async function updateAuction(id: string, updates: Omit<Auction, 'id' | 'c
 }
 
 export async function deleteAuction(id: string): Promise<void> {
+  if (MOCK) {
+    saveMockAuctions(getMockAuctions().filter(a => a.id !== id));
+    return;
+  }
+
   const { error } = await supabase
     .from('auctions')
     .delete()
