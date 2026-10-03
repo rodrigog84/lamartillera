@@ -1,19 +1,15 @@
-const SESSION_KEY = 'lm_admin_session';
+import { supabase } from '../lib/supabase';
 
-// Modo maqueta: cualquier usuario y contraseña no vacíos son aceptados.
-// Reemplazar por validación real cuando se integre un backend.
-export function login(username: string, password: string): boolean {
-  if (username.trim() && password.trim()) {
-    sessionStorage.setItem(SESSION_KEY, 'true');
-    return true;
-  }
-  return false;
+export async function login(email: string, password: string): Promise<boolean> {
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  return !error;
 }
 
-export function logout(): void {
-  sessionStorage.removeItem(SESSION_KEY);
+export async function logout(): Promise<void> {
+  await supabase.auth.signOut();
 }
 
-export function isAuthenticated(): boolean {
-  return sessionStorage.getItem(SESSION_KEY) === 'true';
+export async function getSession() {
+  const { data } = await supabase.auth.getSession();
+  return data.session;
 }

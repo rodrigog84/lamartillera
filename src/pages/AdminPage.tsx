@@ -1,30 +1,32 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Plus, Pencil, Trash2, Eye, Search, X, Save,
-  ChevronLeft, LayoutGrid, CheckCircle, AlertTriangle, FileText, LogOut,
+  Plus, Edit2, Trash2, X, Save, LogOut, Search,
+  LayoutGrid, Upload, Loader2, AlertCircle, RefreshCw,
 } from 'lucide-react';
+import { useAuctions } from '../hooks/useAuctions';
+import { createAuction, updateAuction, deleteAuction } from '../lib/auctionsApi';
+import { uploadFile } from '../lib/storageApi';
 import { logout } from '../utils/auth';
-import { getAuctions, addAuction, updateAuction, deleteAuction, resetToSampleData } from '../data/auctions';
-import { Auction, PropertyType, AuctionStatus, Currency, AuctionCategory } from '../types';
-import { formatPrice, formatDate, PROPERTY_TYPES, REGIONS, OCCUPATION_TYPES, CATEGORY_PROPERTY_TYPES, AUCTION_CATEGORIES } from '../utils/format';
+import { Auction, AuctionCategory, AuctionStatus, Currency, PropertyType } from '../types';
+import { REGIONS, AUCTION_CATEGORIES, CATEGORY_PROPERTY_TYPES } from '../utils/format';
 import clsx from 'clsx';
 
-type AdminView = 'list' | 'add' | 'edit';
+type FormData = Omit<Auction, 'id' | 'createdAt'>;
 
-const EMPTY_FORM: Omit<Auction, 'id' | 'createdAt'> = {
+const EMPTY_FORM: FormData = {
   title: '',
   address: '',
   commune: '',
-  region: 'RM - Metropolitana',
+  region: '',
   category: 'Inmuebles',
-  propertyType: 'Departamento',
+  propertyType: 'Casa',
   status: 'Disponible',
   minPrice: 0,
   currency: 'UF',
   guarantee: 0,
   auctionDate: '',
-  images: [''],
+  images: [],
   description: '',
   surface: 0,
   bedrooms: undefined,
@@ -32,530 +34,449 @@ const EMPTY_FORM: Omit<Auction, 'id' | 'createdAt'> = {
   parkingSpaces: undefined,
   occupation: 'Desocupada',
   featured: false,
-  externalRegistrationUrl: 'https://lamartillera.cl/registro',
+  externalRegistrationUrl: '',
   documents: {},
 };
 
 export default function AdminPage() {
   const navigate = useNavigate();
-  const [view, setView] = useState<AdminView>('list');
-  const [auctions, setAuctions] = useState(getAuctions);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<Omit<Auction, 'id' | 'createdAt'>>(EMPTY_FORM);
+  const { auctions, loading, error, reload } = useAuctions();
   const [search, setSearch] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
-
-  const refresh = () => setAuctions(getAuctions());
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<FormData>(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [uploading, setUploading] = useState<Record<string, boolean>>({});
+  const imgInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = auctions.filter(a =>
     a.title.toLowerCase().includes(search.toLowerCase()) ||
     a.commune.toLowerCase().includes(search.toLowerCase())
   );
 
-  const openAdd = () => {
+  const openNew = () => {
     setForm(EMPTY_FORM);
     setEditingId(null);
-    setView('add');
+    setSaveError('');
+    setShowForm(true);
   };
 
   const openEdit = (a: Auction) => {
     setForm({
-      title: a.title, address: a.address, commune: a.commune, region: a.region,
+      title: a.title,
+      address: a.address,
+      commune: a.commune,
+      region: a.region,
       category: a.category ?? 'Inmuebles',
-      propertyType: a.propertyType, status: a.status, minPrice: a.minPrice,
-      currency: a.currency, guarantee: a.guarantee, auctionDate: a.auctionDate,
-      images: a.images.length > 0 ? a.images : [''],
-      description: a.description, surface: a.surface,
-      bedrooms: a.bedrooms, bathrooms: a.bathrooms, parkingSpaces: a.parkingSpaces,
-      occupation: a.occupation, featured: a.featured,
+      propertyType: a.propertyType,
+      status: a.status,
+      minPrice: a.minPrice,
+      currency: a.currency,
+      guarantee: a.guarantee,
+      auctionDate: a.auctionDate,
+      images: [...a.images],
+      description: a.description,
+      surface: a.surface,
+      bedrooms: a.bedrooms,
+      bathrooms: a.bathrooms,
+      parkingSpaces: a.parkingSpaces,
+      occupation: a.occupation,
+      featured: a.featured,
       externalRegistrationUrl: a.externalRegistrationUrl,
-      documents: a.documents ?? {},
+      documents: { ...a.documents },
     });
     setEditingId(a.id);
-    setView('edit');
+    setSaveError('');
+    setShowForm(true);
   };
 
-  const handleSave = () => {
-    const cleanForm = {
-      ...form,
-      images: form.images.filter(img => img.trim() !== ''),
-      minPrice: Number(form.minPrice),
-      guarantee: Number(form.guarantee),
-      surface: Number(form.surface),
-      bedrooms: form.bedrooms ? Number(form.bedrooms) : undefined,
-      bathrooms: form.bathrooms ? Number(form.bathrooms) : undefined,
-      parkingSpaces: form.parkingSpaces ? Number(form.parkingSpaces) : undefined,
-    };
-
-    if (view === 'add') {
-      addAuction(cleanForm);
-    } else if (editingId) {
-      updateAuction(editingId, cleanForm);
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`¿Eliminar "${title}"? Esta acción no se puede deshacer.`)) return;
+    try {
+      await deleteAuction(id);
+      reload();
+    } catch (e) {
+      alert((e as Error).message);
     }
-    refresh();
-    setSaved(true);
-    setTimeout(() => { setSaved(false); setView('list'); }, 1200);
   };
 
-  const confirmDelete = (id: string) => {
-    deleteAuction(id);
-    setDeleteTarget(null);
-    refresh();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setSaveError('');
+    try {
+      if (editingId) {
+        await updateAuction(editingId, form);
+      } else {
+        await createAuction(form);
+      }
+      reload();
+      setShowForm(false);
+    } catch (e) {
+      setSaveError((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const setField = <K extends keyof typeof form>(key: K, val: typeof form[K]) => {
-    setForm(f => ({ ...f, [key]: val }));
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
   };
 
-  const setDocField = (key: keyof NonNullable<Auction['documents']>, val: string) => {
-    setForm(f => ({ ...f, documents: { ...f.documents, [key]: val || undefined } }));
+  const setField = <K extends keyof FormData>(key: K, value: FormData[K]) =>
+    setForm(prev => ({ ...prev, [key]: value }));
+
+  const handleCategoryChange = (cat: AuctionCategory) => {
+    const types = CATEGORY_PROPERTY_TYPES[cat];
+    setForm(prev => ({ ...prev, category: cat, propertyType: types[0] as PropertyType }));
   };
 
-  const updateImage = (idx: number, val: string) => {
-    const imgs = [...form.images];
-    imgs[idx] = val;
-    setForm(f => ({ ...f, images: imgs }));
+  // ── File uploads ──
+  const uploadImg = async (file: File) => {
+    const tempId = editingId ?? 'new-' + Date.now();
+    setUploading(p => ({ ...p, img: true }));
+    try {
+      const url = await uploadFile(file, 'images', tempId);
+      setField('images', [...form.images, url]);
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setUploading(p => ({ ...p, img: false }));
+    }
   };
 
-  const addImageField = () => setForm(f => ({ ...f, images: [...f.images, ''] }));
-  const removeImageField = (idx: number) => {
-    const imgs = form.images.filter((_, i) => i !== idx);
-    setForm(f => ({ ...f, images: imgs.length > 0 ? imgs : [''] }));
+  const uploadDoc = async (docKey: keyof NonNullable<FormData['documents']>, file: File) => {
+    const tempId = editingId ?? 'new-' + Date.now();
+    setUploading(p => ({ ...p, [docKey]: true }));
+    try {
+      const url = await uploadFile(file, 'docs', tempId);
+      setForm(prev => ({ ...prev, documents: { ...prev.documents, [docKey]: url } }));
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setUploading(p => ({ ...p, [docKey]: false }));
+    }
   };
 
-  // Contextual property types based on selected category
-  const availableTypes = CATEGORY_PROPERTY_TYPES[form.category] ?? PROPERTY_TYPES;
+  const removeImage = (idx: number) =>
+    setField('images', form.images.filter((_, i) => i !== idx));
 
-  /* ── List view ── */
-  if (view === 'list') {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="hero-gradient pt-24 pb-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Link to="/" className="text-white/60 hover:text-white text-sm flex items-center gap-1">
-                    <ChevronLeft className="w-4 h-4" /> Sitio público
-                  </Link>
-                </div>
-                <h1 className="text-3xl font-black text-white">Panel de Administración</h1>
-                <p className="text-blue-200 mt-1">{auctions.length} subasta{auctions.length !== 1 ? 's' : ''} en total</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => { resetToSampleData(); refresh(); }}
-                  className="flex items-center gap-2 px-4 py-3 bg-white/20 text-white font-medium rounded-2xl hover:bg-white/30 transition-colors text-sm"
-                  title="Restaura los datos de ejemplo originales"
-                >
-                  Restablecer ejemplos
-                </button>
-                <button onClick={openAdd} className="flex items-center gap-2 px-5 py-3 bg-white text-brand-purple-600 font-bold rounded-2xl hover:bg-blue-50 transition-colors shadow-lg">
-                  <Plus className="w-5 h-5" /> Nueva subasta
-                </button>
-                <button
-                  onClick={() => { logout(); navigate('/'); }}
-                  title="Cerrar sesión"
-                  className="p-3 bg-white/20 text-white rounded-2xl hover:bg-white/30 transition-colors"
-                >
-                  <LogOut className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+  const availableTypes = CATEGORY_PROPERTY_TYPES[form.category ?? 'Inmuebles'];
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            {[
-              { label: 'Total', value: auctions.length, color: 'border-brand-purple-200' },
-              { label: 'Disponibles', value: auctions.filter(a => a.status === 'Disponible').length, color: 'border-green-200' },
-              { label: 'Próximamente', value: auctions.filter(a => a.status === 'Próximamente').length, color: 'border-amber-200' },
-              { label: 'Adjudicadas', value: auctions.filter(a => a.status === 'Adjudicada').length, color: 'border-gray-200' },
-            ].map(s => (
-              <div key={s.label} className={`bg-white rounded-2xl p-5 shadow-sm border-l-4 ${s.color}`}>
-                <p className="text-3xl font-black text-gradient">{s.value}</p>
-                <p className="text-sm text-gray-500 mt-0.5">{s.label}</p>
-              </div>
-            ))}
-          </div>
+  const DOC_FIELDS: { key: keyof NonNullable<FormData['documents']>; label: string }[] = [
+    { key: 'basesDelRemate', label: 'Bases del Remate' },
+    { key: 'cdv',            label: 'CDV' },
+    { key: 'cav',            label: 'CAV' },
+    { key: 'gravamenes',     label: 'Gravámenes' },
+  ];
 
-          {/* Search */}
-          <div className="relative mb-6">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Buscar subasta…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="input pl-12"
-            />
-          </div>
-
-          {/* Table */}
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Bien</th>
-                    <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Categoría</th>
-                    <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Fecha</th>
-                    <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Precio mín.</th>
-                    <th className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Estado</th>
-                    <th className="text-right px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {filtered.map(auction => (
-                    <tr key={auction.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
-                            {auction.images[0] ? (
-                              <img src={auction.images[0]} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                <LayoutGrid className="w-5 h-5" />
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-900 text-sm line-clamp-1 max-w-[200px]">{auction.title}</p>
-                            <p className="text-xs text-gray-400">{auction.commune}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 hidden md:table-cell">
-                        <div className="space-y-1">
-                          <span className="badge bg-brand-purple-100 text-brand-purple-700 block w-fit">{auction.category ?? 'Inmuebles'}</span>
-                          <span className="badge bg-gray-100 text-gray-600 block w-fit">{auction.propertyType}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-600 hidden lg:table-cell">{formatDate(auction.auctionDate)}</td>
-                      <td className="px-4 py-4">
-                        <span className="font-semibold text-sm text-gradient">{formatPrice(auction)}</span>
-                      </td>
-                      <td className="px-4 py-4 hidden sm:table-cell">
-                        <span className={clsx(
-                          'badge',
-                          auction.status === 'Disponible' ? 'bg-green-100 text-green-700' :
-                          auction.status === 'Adjudicada' ? 'bg-gray-100 text-gray-600' :
-                          'bg-amber-100 text-amber-700'
-                        )}>
-                          {auction.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            to={`/subastas/${auction.id}`}
-                            title="Ver"
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Link>
-                          <button
-                            onClick={() => openEdit(auction)}
-                            title="Editar"
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-brand-purple-50 hover:text-brand-purple-600 transition-colors"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteTarget(auction.id)}
-                            title="Eliminar"
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-
-                  {filtered.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="text-center py-16 text-gray-400">
-                        <Search className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                        <p className="font-medium">Sin resultados</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* Delete confirm modal */}
-        {deleteTarget && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl">
-              <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="w-7 h-7 text-red-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">¿Eliminar subasta?</h3>
-              <p className="text-gray-500 text-center text-sm mb-6">Esta acción no se puede deshacer.</p>
-              <div className="flex gap-3">
-                <button onClick={() => setDeleteTarget(null)} className="flex-1 py-3 border border-gray-200 rounded-xl font-medium hover:bg-gray-50 transition-colors">
-                  Cancelar
-                </button>
-                <button onClick={() => confirmDelete(deleteTarget)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors">
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  /* ── Add / Edit form ── */
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="hero-gradient pt-24 pb-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <button onClick={() => setView('list')} className="flex items-center gap-1 text-white/70 hover:text-white text-sm mb-3 transition-colors">
-            <ChevronLeft className="w-4 h-4" /> Volver al listado
-          </button>
-          <h1 className="text-3xl font-black text-white">
-            {view === 'add' ? 'Nueva subasta' : 'Editar subasta'}
-          </h1>
+      {/* Topbar */}
+      <div className="hero-gradient px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-black text-white">Panel de Administración</h1>
+            <p className="text-blue-200 text-sm mt-0.5">{auctions.length} subasta{auctions.length !== 1 ? 's' : ''} en total</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={reload} title="Actualizar" className="p-2.5 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-colors">
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <button onClick={openNew} className="flex items-center gap-2 px-5 py-2.5 bg-white text-brand-purple-600 font-bold rounded-xl hover:bg-blue-50 transition-colors shadow-lg">
+              <Plus className="w-5 h-5" /> Nueva subasta
+            </button>
+            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2.5 bg-white/20 hover:bg-white/30 text-white font-medium rounded-xl transition-colors text-sm">
+              <LogOut className="w-4 h-4" /> Salir
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {saved && (
-          <div className="mb-6 flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 px-5 py-4 rounded-2xl">
-            <CheckCircle className="w-5 h-5" />
-            <p className="font-semibold">¡Guardado correctamente!</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search */}
+        <div className="relative max-w-md mb-6">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <input type="text" placeholder="Buscar subasta…" value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple-400" />
+        </div>
+
+        {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4 mb-6 text-sm flex items-center gap-2"><AlertCircle className="w-4 h-4 flex-shrink-0" />{error}</div>}
+
+        {/* Table */}
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 className="w-8 h-8 animate-spin text-brand-purple-400" />
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            {filtered.length === 0 ? (
+              <div className="text-center py-16">
+                <LayoutGrid className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-400">No hay subastas. ¡Crea la primera!</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                      {['Subasta', 'Categoría', 'Estado', 'Precio', 'Fecha', 'Acciones'].map(h => (
+                        <th key={h} className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {filtered.map(a => (
+                      <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-5 py-4">
+                          <p className="font-semibold text-gray-900 max-w-xs truncate">{a.title}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{a.commune}, {a.region.split(' - ')[1] ?? a.region}</p>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="px-2 py-1 bg-brand-blue-50 text-brand-blue-700 text-xs font-medium rounded-full">{a.category ?? 'Inmuebles'}</span>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className={clsx('px-2.5 py-1 rounded-full text-xs font-medium', a.status === 'Disponible' ? 'bg-green-100 text-green-700' : a.status === 'Adjudicada' ? 'bg-gray-100 text-gray-600' : 'bg-amber-100 text-amber-700')}>
+                            {a.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 font-semibold text-brand-purple-600">{a.minPrice.toLocaleString('es-CL')} {a.currency}</td>
+                        <td className="px-5 py-4 text-gray-500">{a.auctionDate}</td>
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => openEdit(a)} className="p-2 text-gray-500 hover:text-brand-blue-600 hover:bg-brand-blue-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                            <button onClick={() => handleDelete(a.id, a.title)} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
+      </div>
 
-        <div className="bg-white rounded-2xl shadow-sm p-8 space-y-8">
-          {/* Basic info */}
-          <FormSection title="Información básica">
-            <div>
-              <label className="label">Título del bien *</label>
-              <input value={form.title} onChange={e => setField('title', e.target.value)} className="input" placeholder="Ej: Departamento céntrico con vista panorámica" />
+      {/* ── Form modal ── */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center z-50 overflow-y-auto p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl my-8">
+            <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900">{editingId ? 'Editar subasta' : 'Nueva subasta'}</h2>
+              <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors"><X className="w-5 h-5" /></button>
             </div>
-            <div>
-              <label className="label">Descripción *</label>
-              <textarea value={form.description} onChange={e => setField('description', e.target.value)} rows={4} className="input resize-none" placeholder="Describe el bien a rematar…" />
-            </div>
-            <div className="grid sm:grid-cols-3 gap-5">
-              <div>
-                <label className="label">Categoría principal</label>
-                <select
-                  value={form.category}
-                  onChange={e => {
-                    const cat = e.target.value as AuctionCategory;
-                    const firstType = CATEGORY_PROPERTY_TYPES[cat][0] as PropertyType;
-                    setForm(f => ({ ...f, category: cat, propertyType: firstType }));
-                  }}
-                  className="input"
-                >
-                  {AUCTION_CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="label">Tipo de bien</label>
-                <select value={form.propertyType} onChange={e => setField('propertyType', e.target.value as PropertyType)} className="input">
-                  {availableTypes.map(t => <option key={t}>{t}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="label">Estado</label>
-                <select value={form.status} onChange={e => setField('status', e.target.value as AuctionStatus)} className="input">
-                  {(['Disponible', 'Próximamente', 'Adjudicada'] as AuctionStatus[]).map(s => <option key={s}>{s}</option>)}
-                </select>
-              </div>
-            </div>
-          </FormSection>
 
-          {/* Location */}
-          <FormSection title="Ubicación">
-            <div>
-              <label className="label">Dirección completa *</label>
-              <input value={form.address} onChange={e => setField('address', e.target.value)} className="input" placeholder="Av. Providencia 1234, Depto. 801" />
-            </div>
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div>
-                <label className="label">Comuna *</label>
-                <input value={form.commune} onChange={e => setField('commune', e.target.value)} className="input" placeholder="Providencia" />
-              </div>
-              <div>
-                <label className="label">Región</label>
-                <select value={form.region} onChange={e => setField('region', e.target.value)} className="input">
-                  {REGIONS.map(r => <option key={r}>{r}</option>)}
-                </select>
-              </div>
-            </div>
-          </FormSection>
+            <form onSubmit={handleSubmit} className="px-8 py-6 space-y-6">
+              {saveError && <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm"><AlertCircle className="w-4 h-4" />{saveError}</div>}
 
-          {/* Price & date */}
-          <FormSection title="Precio y fecha">
-            <div className="grid sm:grid-cols-3 gap-5">
+              {/* Basic */}
               <div>
-                <label className="label">Moneda</label>
-                <select value={form.currency} onChange={e => setField('currency', e.target.value as Currency)} className="input">
-                  <option value="UF">UF</option>
-                  <option value="CLP">CLP ($)</option>
-                </select>
-              </div>
-              <div className="sm:col-span-2">
-                <label className="label">Precio mínimo *</label>
-                <input type="number" value={form.minPrice || ''} onChange={e => setField('minPrice', Number(e.target.value))} className="input" placeholder="0" min="0" />
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div>
-                <label className="label">Garantía (CLP) *</label>
-                <input type="number" value={form.guarantee || ''} onChange={e => setField('guarantee', Number(e.target.value))} className="input" placeholder="4000000" min="0" />
-              </div>
-              <div>
-                <label className="label">Fecha de subasta *</label>
-                <input type="date" value={form.auctionDate} onChange={e => setField('auctionDate', e.target.value)} className="input" />
-              </div>
-            </div>
-          </FormSection>
-
-          {/* Characteristics */}
-          <FormSection title="Características">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div>
-                <label className="label">Superficie (m²) *</label>
-                <input type="number" value={form.surface || ''} onChange={e => setField('surface', Number(e.target.value))} className="input" min="0" />
-              </div>
-              <div>
-                <label className="label">Dormitorios</label>
-                <input type="number" value={form.bedrooms ?? ''} onChange={e => setField('bedrooms', e.target.value ? Number(e.target.value) : undefined)} className="input" min="0" />
-              </div>
-              <div>
-                <label className="label">Baños</label>
-                <input type="number" value={form.bathrooms ?? ''} onChange={e => setField('bathrooms', e.target.value ? Number(e.target.value) : undefined)} className="input" min="0" />
-              </div>
-              <div>
-                <label className="label">Estacionamientos</label>
-                <input type="number" value={form.parkingSpaces ?? ''} onChange={e => setField('parkingSpaces', e.target.value ? Number(e.target.value) : undefined)} className="input" min="0" />
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div>
-                <label className="label">Ocupación</label>
-                <select value={form.occupation} onChange={e => setField('occupation', e.target.value as typeof form.occupation)} className="input">
-                  {OCCUPATION_TYPES.map(o => <option key={o}>{o}</option>)}
-                </select>
-              </div>
-              <div className="flex items-center gap-3 mt-6">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  checked={form.featured}
-                  onChange={e => setField('featured', e.target.checked)}
-                  className="w-5 h-5 accent-brand-purple-500 rounded cursor-pointer"
-                />
-                <label htmlFor="featured" className="font-medium text-gray-700 cursor-pointer">
-                  Marcar como destacada
-                </label>
-              </div>
-            </div>
-          </FormSection>
-
-          {/* Documents */}
-          <FormSection title="Documentación y Anexos">
-            <p className="text-sm text-gray-500 -mt-2">Ingresa las URLs de los PDFs. Deja en blanco si no aplica.</p>
-            <div className="grid sm:grid-cols-2 gap-5">
-              {[
-                { key: 'basesDelRemate' as const, label: 'Bases del Remate', placeholder: 'https://...' },
-                { key: 'cdv' as const, label: 'Certificado de Dominio Vigente (CDV)', placeholder: 'https://...' },
-                { key: 'cav' as const, label: 'Certificado de Anotaciones Vigentes (CAV)', placeholder: 'https://...' },
-                { key: 'gravamenes' as const, label: 'Impuesto / Gravámenes', placeholder: 'https://...' },
-              ].map(({ key, label, placeholder }) => (
-                <div key={key}>
-                  <label className="label flex items-center gap-2">
-                    <FileText className="w-3.5 h-3.5 text-gray-400" /> {label}
-                  </label>
-                  <input
-                    type="url"
-                    value={form.documents?.[key] ?? ''}
-                    onChange={e => setDocField(key, e.target.value)}
-                    className="input"
-                    placeholder={placeholder}
-                  />
+                <h3 className="section-title">Información básica</h3>
+                <div className="grid gap-4">
+                  <div>
+                    <label className="label">Título *</label>
+                    <input className="input" value={form.title} onChange={e => setField('title', e.target.value)} required />
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="label">Categoría *</label>
+                      <select className="input" value={form.category} onChange={e => handleCategoryChange(e.target.value as AuctionCategory)}>
+                        {AUCTION_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label">Tipo de bien *</label>
+                      <select className="input" value={form.propertyType} onChange={e => setField('propertyType', e.target.value as PropertyType)}>
+                        {availableTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="label">Descripción</label>
+                    <textarea className="input min-h-[100px] resize-y" value={form.description} onChange={e => setField('description', e.target.value)} />
+                  </div>
                 </div>
-              ))}
-            </div>
-          </FormSection>
+              </div>
 
-          {/* Images */}
-          <FormSection title="Imágenes (URLs)">
-            <div className="space-y-3">
-              {form.images.map((img, idx) => (
-                <div key={idx} className="flex gap-2">
-                  <input
-                    value={img}
-                    onChange={e => updateImage(idx, e.target.value)}
-                    className="input flex-1"
-                    placeholder="https://images.unsplash.com/..."
-                  />
-                  {form.images.length > 1 && (
-                    <button onClick={() => removeImageField(idx)} className="px-3 py-2 text-red-400 hover:bg-red-50 rounded-xl transition-colors">
-                      <X className="w-5 h-5" />
+              {/* Location */}
+              <div>
+                <h3 className="section-title">Ubicación</h3>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="label">Dirección *</label>
+                    <input className="input" value={form.address} onChange={e => setField('address', e.target.value)} required />
+                  </div>
+                  <div>
+                    <label className="label">Comuna *</label>
+                    <input className="input" value={form.commune} onChange={e => setField('commune', e.target.value)} required />
+                  </div>
+                  <div>
+                    <label className="label">Región *</label>
+                    <select className="input" value={form.region} onChange={e => setField('region', e.target.value)} required>
+                      <option value="">Seleccionar…</option>
+                      {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Auction details */}
+              <div>
+                <h3 className="section-title">Detalles del remate</h3>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="label">Precio mínimo *</label>
+                    <input type="number" className="input" value={form.minPrice || ''} onChange={e => setField('minPrice', +e.target.value)} required min={0} />
+                  </div>
+                  <div>
+                    <label className="label">Moneda *</label>
+                    <select className="input" value={form.currency} onChange={e => setField('currency', e.target.value as Currency)}>
+                      <option value="UF">UF</option>
+                      <option value="CLP">CLP</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="label">Garantía</label>
+                    <input type="number" className="input" value={form.guarantee || ''} onChange={e => setField('guarantee', +e.target.value)} min={0} />
+                  </div>
+                  <div>
+                    <label className="label">Fecha remate *</label>
+                    <input type="date" className="input" value={form.auctionDate} onChange={e => setField('auctionDate', e.target.value)} required />
+                  </div>
+                  <div>
+                    <label className="label">Estado *</label>
+                    <select className="input" value={form.status} onChange={e => setField('status', e.target.value as AuctionStatus)}>
+                      {(['Disponible', 'Próximamente', 'Adjudicada'] as AuctionStatus[]).map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="label">Ocupación</label>
+                    <select className="input" value={form.occupation} onChange={e => setField('occupation', e.target.value as FormData['occupation'])}>
+                      {['Desocupada', 'Ocupada', 'Arrendada'].map(o => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Characteristics */}
+              <div>
+                <h3 className="section-title">Características</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div>
+                    <label className="label">Superficie m²</label>
+                    <input type="number" className="input" value={form.surface || ''} onChange={e => setField('surface', +e.target.value)} min={0} />
+                  </div>
+                  <div>
+                    <label className="label">Dormitorios</label>
+                    <input type="number" className="input" value={form.bedrooms ?? ''} onChange={e => setField('bedrooms', e.target.value ? +e.target.value : undefined)} min={0} />
+                  </div>
+                  <div>
+                    <label className="label">Baños</label>
+                    <input type="number" className="input" value={form.bathrooms ?? ''} onChange={e => setField('bathrooms', e.target.value ? +e.target.value : undefined)} min={0} />
+                  </div>
+                  <div>
+                    <label className="label">Estac.</label>
+                    <input type="number" className="input" value={form.parkingSpaces ?? ''} onChange={e => setField('parkingSpaces', e.target.value ? +e.target.value : undefined)} min={0} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Images */}
+              <div>
+                <h3 className="section-title">Imágenes</h3>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input ref={imgInputRef} type="file" accept="image/*" className="hidden"
+                      onChange={e => { const f = e.target.files?.[0]; if (f) uploadImg(f); e.target.value = ''; }} />
+                    <button type="button" onClick={() => imgInputRef.current?.click()}
+                      disabled={uploading.img}
+                      className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-brand-purple-300 text-brand-purple-600 rounded-xl hover:bg-brand-purple-50 transition-colors text-sm font-medium disabled:opacity-50">
+                      {uploading.img ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      {uploading.img ? 'Subiendo…' : 'Subir imagen'}
                     </button>
+                    <input type="text" className="input flex-1 text-sm" placeholder="… o pegar URL de imagen"
+                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); const v = (e.target as HTMLInputElement).value.trim(); if (v) { setField('images', [...form.images, v]); (e.target as HTMLInputElement).value = ''; } } }} />
+                  </div>
+                  {form.images.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {form.images.map((img, i) => (
+                        <div key={i} className="relative group">
+                          <img src={img} alt="" className="w-20 h-16 object-cover rounded-xl border border-gray-200" />
+                          <button type="button" onClick={() => removeImage(i)} className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-              ))}
-              <button onClick={addImageField} className="flex items-center gap-2 text-sm text-brand-purple-500 hover:text-brand-purple-700 font-medium transition-colors">
-                <Plus className="w-4 h-4" /> Agregar otra imagen
-              </button>
-            </div>
-          </FormSection>
+              </div>
 
-          {/* Registration URL */}
-          <FormSection title="Enlace externo">
-            <div>
-              <label className="label">URL de inscripción (registro externo)</label>
-              <input
-                type="url"
-                value={form.externalRegistrationUrl}
-                onChange={e => setField('externalRegistrationUrl', e.target.value)}
-                className="input"
-                placeholder="https://lamartillera.cl/registro"
-              />
-              <p className="mt-1.5 text-xs text-gray-400">Este enlace llevará al usuario a la página de registro del martillero.</p>
-            </div>
-          </FormSection>
+              {/* Docs */}
+              <div>
+                <h3 className="section-title">Documentación legal (PDF)</h3>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {DOC_FIELDS.map(({ key, label }) => (
+                    <div key={key}>
+                      <label className="label">{label}</label>
+                      <div className="flex gap-2">
+                        <input type="text" className="input flex-1 text-sm" placeholder="URL del PDF…"
+                          value={form.documents?.[key] ?? ''}
+                          onChange={e => setForm(prev => ({ ...prev, documents: { ...prev.documents, [key]: e.target.value } }))} />
+                        <DocUploadButton
+                          uploading={!!uploading[key]}
+                          onChange={f => uploadDoc(key, f)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-          {/* Actions */}
-          <div className="flex gap-4 pt-4 border-t border-gray-100">
-            <button onClick={() => setView('list')} className="px-6 py-3 border border-gray-200 rounded-xl font-medium hover:bg-gray-50 transition-colors">
-              Cancelar
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={!form.title || !form.address || !form.commune || !form.auctionDate}
-              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-brand-blue-500 to-brand-purple-500 text-white font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-            >
-              <Save className="w-5 h-5" />
-              {view === 'add' ? 'Crear subasta' : 'Guardar cambios'}
-            </button>
+              {/* Registration URL */}
+              <div>
+                <h3 className="section-title">Enlace externo</h3>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="label">URL de inscripción</label>
+                    <input type="url" className="input" value={form.externalRegistrationUrl} onChange={e => setField('externalRegistrationUrl', e.target.value)} placeholder="https://…" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input type="checkbox" id="featured" checked={form.featured} onChange={e => setField('featured', e.target.checked)} className="w-4 h-4 accent-brand-purple-500" />
+                    <label htmlFor="featured" className="text-sm font-medium text-gray-700 cursor-pointer">Marcar como destacada en el home</label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <button type="button" onClick={() => setShowForm(false)} className="btn-outline">Cancelar</button>
+                <button type="submit" disabled={saving} className="btn-primary flex items-center gap-2">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  {saving ? 'Guardando…' : (editingId ? 'Guardar cambios' : 'Crear subasta')}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
-function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+function DocUploadButton({ uploading, onChange }: { uploading: boolean; onChange: (f: File) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
   return (
-    <div>
-      <h2 className="font-bold text-lg text-gray-900 mb-5 pb-3 border-b border-gray-100">{title}</h2>
-      <div className="space-y-4">{children}</div>
-    </div>
+    <>
+      <input ref={ref} type="file" accept="application/pdf" className="hidden"
+        onChange={e => { const f = e.target.files?.[0]; if (f) onChange(f); e.target.value = ''; }} />
+      <button type="button" onClick={() => ref.current?.click()} disabled={uploading}
+        className="p-2.5 border border-dashed border-gray-300 rounded-xl hover:border-brand-purple-300 hover:bg-brand-purple-50 transition-colors disabled:opacity-50">
+        {uploading ? <Loader2 className="w-4 h-4 animate-spin text-brand-purple-500" /> : <Upload className="w-4 h-4 text-gray-500" />}
+      </button>
+    </>
   );
 }

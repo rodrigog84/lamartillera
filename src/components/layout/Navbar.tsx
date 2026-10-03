@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, LogOut } from 'lucide-react';
 import clsx from 'clsx';
-import { isAuthenticated, logout } from '../../utils/auth';
+import { getSession, logout } from '../../utils/auth';
+import { supabase } from '../../lib/supabase';
 
 const NAV_LINKS = [
   { to: '/', label: 'Inicio' },
@@ -16,10 +17,18 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [authed, setAuthed] = useState(isAuthenticated());
+  const [authed, setAuthed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === '/';
+
+  useEffect(() => {
+    getSession().then(s => setAuthed(!!s));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthed(!!session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -29,11 +38,10 @@ export default function Navbar() {
 
   useEffect(() => {
     setMenuOpen(false);
-    setAuthed(isAuthenticated());
   }, [location]);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     setAuthed(false);
     navigate('/');
   };

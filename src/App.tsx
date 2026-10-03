@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
@@ -10,10 +11,28 @@ import LoginPage from './pages/LoginPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import AdjudicatedPage from './pages/AdjudicatedPage';
 import NotFoundPage from './pages/NotFoundPage';
-import { isAuthenticated } from './utils/auth';
+import { getSession } from './utils/auth';
+import { Loader2 } from 'lucide-react';
 
 function ProtectedAdmin() {
-  return isAuthenticated() ? <AdminPage /> : <Navigate to="/login" replace />;
+  const [checking, setChecking] = useState(true);
+  const [authed, setAuthed]     = useState(false);
+
+  useEffect(() => {
+    getSession().then(session => {
+      setAuthed(!!session);
+      setChecking(false);
+    });
+  }, []);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-purple-400" />
+      </div>
+    );
+  }
+  return authed ? <AdminPage /> : <Navigate to="/login" replace />;
 }
 
 export default function App() {
@@ -21,14 +40,14 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/subastas" element={<AuctionsPage />} />
-          <Route path="/subastas/:id" element={<AuctionDetailPage />} />
+          <Route path="/"              element={<HomePage />} />
+          <Route path="/subastas"      element={<AuctionsPage />} />
+          <Route path="/subastas/:id"  element={<AuctionDetailPage />} />
           <Route path="/como-funciona" element={<HowItWorksPage />} />
-          <Route path="/adjudicados" element={<AdjudicatedPage />} />
-          <Route path="/nosotros" element={<AboutPage />} />
-          <Route path="/contacto" element={<ContactPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path="/adjudicados"   element={<AdjudicatedPage />} />
+          <Route path="/nosotros"      element={<AboutPage />} />
+          <Route path="/contacto"      element={<ContactPage />} />
+          <Route path="*"              element={<NotFoundPage />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/admin" element={<ProtectedAdmin />} />
