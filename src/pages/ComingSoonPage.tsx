@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram } from 'lucide-react';
+
+function TikTokIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.73a4.85 4.85 0 01-1.01-.04z" />
+    </svg>
+  );
+}
 
 const LAUNCH_DATE = new Date('2027-03-01T10:00:00');
 
@@ -91,9 +99,9 @@ export default function ComingSoonPage() {
 
         {/* Contact */}
         <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 text-white/70 text-sm">
-          <a href="tel:+56912345678" className="flex items-center gap-2 hover:text-white transition-colors">
+          <a href="tel:+56965589260" className="flex items-center gap-2 hover:text-white transition-colors">
             <Phone className="w-4 h-4" />
-            +56 9 1234 5678
+            +56 9 6558 9260
           </a>
           <a href="mailto:contacto@lamartillera.cl" className="flex items-center gap-2 hover:text-white transition-colors">
             <Mail className="w-4 h-4" />
@@ -108,9 +116,8 @@ export default function ComingSoonPage() {
         {/* Social */}
         <div className="flex gap-3 mt-8">
           {[
-            { Icon: Facebook,  href: '#', label: 'Facebook'  },
-            { Icon: Instagram, href: '#', label: 'Instagram' },
-            { Icon: Linkedin,  href: '#', label: 'LinkedIn'  },
+            { Icon: Instagram, href: 'https://www.instagram.com/lamartillera.cl/', label: 'Instagram' },
+            { Icon: TikTokIcon, href: 'https://www.tiktok.com/@lamartillera.cl', label: 'TikTok' },
           ].map(({ Icon, href, label }) => (
             <a
               key={label}
