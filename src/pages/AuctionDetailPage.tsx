@@ -3,8 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   MapPin, Calendar, Shield, Maximize2, Bed, Bath, Car,
   ArrowLeft, Share2, ChevronLeft, ChevronRight, Clock,
-  Home, Building2, CheckCircle, FileText, Download, Loader2,
+  Home, Building2, CheckCircle, FileText, Download, Loader2, Heart,
 } from 'lucide-react';
+import InterestModal from '../components/InterestModal';
 import { useAuction } from '../hooks/useAuction';
 import { useAuctions } from '../hooks/useAuctions';
 import { formatPrice, formatGuarantee, formatDate, daysUntilAuction, WHATSAPP_NUMBER } from '../utils/format';
@@ -16,8 +17,9 @@ export default function AuctionDetailPage() {
   const navigate = useNavigate();
   const { auction, loading } = useAuction(id);
   const { auctions } = useAuctions();
-  const [imgIndex, setImgIndex] = useState(0);
-  const [copied, setCopied]     = useState(false);
+  const [imgIndex, setImgIndex]       = useState(0);
+  const [copied, setCopied]           = useState(false);
+  const [showInterest, setShowInterest] = useState(false);
 
   if (loading) {
     return (
@@ -245,9 +247,16 @@ export default function AuctionDetailPage() {
                 <div className="w-full block text-center py-4 bg-gray-100 text-gray-500 font-bold rounded-2xl cursor-not-allowed mb-3">{auction.status}</div>
               )}
 
+              <button
+                onClick={() => setShowInterest(true)}
+                className="flex items-center justify-center gap-2 w-full py-3 border-2 border-brand-purple-500 text-brand-purple-600 hover:bg-brand-purple-50 font-semibold rounded-xl transition-colors text-sm mb-3"
+              >
+                <Heart className="w-4 h-4" /> Me interesa este remate
+              </button>
+
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold rounded-xl transition-colors text-sm">
-                <WhatsAppIcon /> Consultar por este remate
+                <WhatsAppIcon /> Consultar por WhatsApp
               </a>
             </div>
 
@@ -268,6 +277,14 @@ export default function AuctionDetailPage() {
           </div>
         )}
       </div>
+
+      {showInterest && (
+        <InterestModal
+          auctionTitle={auction.title}
+          auctionId={auction.id}
+          onClose={() => setShowInterest(false)}
+        />
+      )}
     </div>
   );
 }
