@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, CheckCircle, Send } from 'lucide-react';
+import { PHONE_DISPLAY, WHATSAPP_NUMBER } from '../utils/format';
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
@@ -31,7 +32,7 @@ export default function ContactPage() {
               <h2 className="font-bold text-xl text-gray-900 mb-6">Información de contacto</h2>
               <div className="space-y-5">
                 {[
-                  { Icon: Phone, label: 'Teléfono', value: '+56 9 1234 5678', href: 'tel:+56912345678' },
+                  { Icon: Phone, label: 'Teléfono', value: PHONE_DISPLAY, href: `tel:+${WHATSAPP_NUMBER}` },
                   { Icon: Mail, label: 'Email', value: 'contacto@lamartillera.cl', href: 'mailto:contacto@lamartillera.cl' },
                   { Icon: MapPin, label: 'Dirección', value: 'Santiago, Chile', href: '#' },
                   { Icon: Clock, label: 'Horario', value: 'Lun–Vie 9:00–18:00', href: '#' },

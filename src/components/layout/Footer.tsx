@@ -1,5 +1,14 @@
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram } from 'lucide-react';
+import { PHONE_DISPLAY } from '../../utils/format';
+
+function TikTokIcon({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.73a4.85 4.85 0 01-1.01-.04z" />
+    </svg>
+  );
+}
 
 export default function Footer() {
   return (
@@ -21,9 +30,8 @@ export default function Footer() {
             </p>
             <div className="flex gap-3">
               {[
-                { Icon: Facebook, href: '#', label: 'Facebook' },
-                { Icon: Instagram, href: '#', label: 'Instagram' },
-                { Icon: Linkedin, href: '#', label: 'LinkedIn' },
+                { Icon: Instagram, href: 'https://www.instagram.com/lamartillera.cl/', label: 'Instagram' },
+                { Icon: TikTokIcon, href: 'https://www.tiktok.com/@lamartillera.cl', label: 'TikTok' },
               ].map(({ Icon, href, label }) => (
                 <a
                   key={label}
@@ -81,7 +89,7 @@ export default function Footer() {
             <h3 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">Contacto</h3>
             <ul className="space-y-4">
               {[
-                { Icon: Phone, text: '+56 9 1234 5678' },
+                { Icon: Phone, text: PHONE_DISPLAY },
                 { Icon: Mail, text: 'contacto@lamartillera.cl' },
                 { Icon: MapPin, text: 'Santiago, Chile' },
               ].map(({ Icon, text }) => (

@@ -1,6 +1,7 @@
 import { Auction, AuctionCategory } from '../types';
 
-export const WHATSAPP_NUMBER = '56995089648';
+export const WHATSAPP_NUMBER = '56965589260';
+export const PHONE_DISPLAY   = '+56 9 6558 9260';
 
 export function formatPrice(auction: Auction): string {
   if (auction.currency === 'UF') {
