@@ -3,6 +3,7 @@ import { Calendar, MapPin, Maximize2, Bed, Bath, Car, Clock } from 'lucide-react
 import clsx from 'clsx';
 import { Auction } from '../types';
 import { formatPrice, formatGuarantee, formatDate, daysUntilAuction } from '../utils/format';
+import FavoriteButton from './FavoriteButton';
 
 interface Props {
   auction: Auction;
@@ -36,8 +37,11 @@ export default function AuctionCard({ auction }: Props) {
           {auction.status}
         </span>
 
+        {/* Favorite button */}
+        <FavoriteButton auctionId={auction.id} variant="card" />
+
         {/* Property type */}
-        <span className="badge absolute top-3 right-3 bg-white/90 text-gray-700">
+        <span className="badge absolute top-3 left-12 bg-white/90 text-gray-700">
           {auction.propertyType}
         </span>
 

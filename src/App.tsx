@@ -11,6 +11,9 @@ import LoginPage from './pages/LoginPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import AdjudicatedPage from './pages/AdjudicatedPage';
 import NotFoundPage from './pages/NotFoundPage';
+import UserRegisterPage from './pages/UserRegisterPage';
+import UserLoginPage from './pages/UserLoginPage';
+import UserDashboardPage from './pages/UserDashboardPage';
 import { getSession } from './utils/auth';
 import { Loader2 } from 'lucide-react';
 
@@ -49,8 +52,11 @@ export default function App() {
           <Route path="/contacto"      element={<ContactPage />} />
           <Route path="*"              element={<NotFoundPage />} />
         </Route>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/admin" element={<ProtectedAdmin />} />
+        <Route path="/login"     element={<LoginPage />} />
+        <Route path="/admin"     element={<ProtectedAdmin />} />
+        <Route path="/registro"  element={<UserRegisterPage />} />
+        <Route path="/ingresar"  element={<UserLoginPage />} />
+        <Route path="/mi-cuenta" element={<UserDashboardPage />} />
       </Routes>
     </BrowserRouter>
   );
