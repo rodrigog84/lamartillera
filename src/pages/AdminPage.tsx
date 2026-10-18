@@ -8,8 +8,10 @@ import { useAuctions } from '../hooks/useAuctions';
 import { createAuction, updateAuction, deleteAuction } from '../lib/auctionsApi';
 import { uploadFile } from '../lib/storageApi';
 import { logout } from '../utils/auth';
-import { Auction, AuctionCategory, AuctionStatus, Currency, PropertyType } from '../types';
+import { Auction, AuctionCategory, AuctionOrigin, AuctionStatus, Currency, PropertyType } from '../types';
 import { REGIONS, AUCTION_CATEGORIES, CATEGORY_PROPERTY_TYPES } from '../utils/format';
+
+const AUCTION_ORIGINS: AuctionOrigin[] = ['Privado', 'Judicial', 'Concursal'];
 import clsx from 'clsx';
 
 type FormData = Omit<Auction, 'id' | 'createdAt'>;
@@ -33,6 +35,7 @@ const EMPTY_FORM: FormData = {
   bathrooms: undefined,
   parkingSpaces: undefined,
   occupation: 'Desocupada',
+  origin: 'Privado',
   featured: false,
   externalRegistrationUrl: '',
   documents: {},
@@ -82,6 +85,7 @@ export default function AdminPage() {
       bathrooms: a.bathrooms,
       parkingSpaces: a.parkingSpaces,
       occupation: a.occupation,
+      origin: a.origin ?? 'Privado',
       featured: a.featured,
       externalRegistrationUrl: a.externalRegistrationUrl,
       documents: { ...a.documents },
@@ -357,6 +361,12 @@ export default function AdminPage() {
                     <label className="label">Ocupación</label>
                     <select className="input" value={form.occupation} onChange={e => setField('occupation', e.target.value as FormData['occupation'])}>
                       {['Desocupada', 'Ocupada', 'Arrendada'].map(o => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="label">Origen del remate</label>
+                    <select className="input" value={form.origin} onChange={e => setField('origin', e.target.value as AuctionOrigin)}>
+                      {AUCTION_ORIGINS.map(o => <option key={o} value={o}>{o}</option>)}
                     </select>
                   </div>
                 </div>

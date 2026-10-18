@@ -29,6 +29,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     bathrooms: 2,
     parkingSpaces: 1,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -62,6 +63,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     bathrooms: 3,
     parkingSpaces: 2,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -91,6 +93,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Hermosa parcela de 5.000 m² con vista directa al lago Llanquihue y el volcán Osorno. Ideal para proyecto turístico o residencia de descanso. Acceso pavimentado, agua potable disponible.',
     surface: 5000,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -118,6 +121,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Local comercial de 120 m² en pleno Paseo Ahumada, sector de alto tráfico peatonal. Incluye bodega y baño. Gran oportunidad de inversión en una de las arterias comerciales más importantes de Santiago.',
     surface: 120,
     occupation: 'Arrendada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -144,6 +148,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Moderna oficina de 65 m² en emblemática torre del sector financiero. Planta libre, aire acondicionado, acceso a salas de reuniones comunes. Metro cercano.',
     surface: 65,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {},
@@ -170,6 +175,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     bedrooms: 2,
     bathrooms: 2,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {},
@@ -196,6 +202,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Bodega industrial de 800 m² con altura libre de 8 m, acceso a camiones, portón eléctrico y oficina. Zona industrial consolidada con fácil acceso a Ruta 68 y Américo Vespucio. Subasta adjudicada exitosamente.',
     surface: 800,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -229,6 +236,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     bathrooms: 2,
     parkingSpaces: 2,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -260,6 +268,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Camioneta Toyota Hilux 4x4 doble cabina, año 2020, motor 2.8 diésel, transmisión automática. 95.000 km. Color blanco. En buen estado general, con leves daños de carrocería. Incluye documentación al día.',
     surface: 0,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -287,6 +296,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Automóvil Chevrolet Cruze LTZ 2019, motor 1.4 turbo nafta, transmisión automática. 68.000 km. Color gris oscuro. Interior en buen estado, mantenciones al día. Se subasta por proceso de liquidación.',
     surface: 0,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -313,6 +323,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Excavadora Caterpillar 320D, año 2018, 4.200 horas de uso. Motor C7.1 ACERT, brazo estándar de 5,7 m. Operativa, con últimos servicios realizados. Ideal para empresa constructora o minera. Revisión técnica vigente.',
     surface: 0,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {},
@@ -339,6 +350,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Camión Volvo FH 500 año 2017, cabina dormitorio, tracción 6x4, 320.000 km. Motor D13 en buen estado. Documentación y revisión técnica vigente. Subasta finalizada y adjudicada a empresa de transporte.',
     surface: 0,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -368,6 +380,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Lote completo de equipamiento para restaurante: 2 cocinas industriales a gas, campana extractora, refrigeradores industriales (2), freidoras, batidora industrial, vajilla completa para 80 personas, muebles de salón (12 mesas y 48 sillas). Todo en buen estado de funcionamiento.',
     surface: 0,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -395,6 +408,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Lote de mobiliario corporativo: 40 escritorios de trabajo, 40 sillas ergonómicas, 6 salas de reuniones completas (mesa + 8 sillas c/u), recepciones, archivadores y cajoneras. Además 25 monitores 24" y 10 impresoras láser. Marca Steelcase y Herman Miller.',
     surface: 0,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -421,6 +435,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Lote de maquinaria para industria textil: 15 telares industriales marca Picanol (2015-2018), 8 máquinas de coser industriales Juki, 3 bordadoras computarizadas, sistema de corte automático, mesas de confección y estantes de bodega. Ideal para empresa en rubro confección o exportación.',
     surface: 0,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {},
@@ -447,6 +462,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     description: 'Lote de equipos médicos: 2 ecógrafos Mindray, 1 arco en C fluoroscopía, 10 camas hospitalarias eléctricas, monitores multiparamétricos (8), equipos de esterilización y set completo de instrumental quirúrgico. Proceso adjudicado exitosamente.',
     surface: 0,
     occupation: 'Desocupada',
+    origin: 'Privado',
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
@@ -519,3 +535,4 @@ export function resetToSampleData(): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_AUCTIONS));
   localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION);
 }
+

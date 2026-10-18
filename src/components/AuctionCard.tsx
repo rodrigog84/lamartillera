@@ -37,6 +37,14 @@ export default function AuctionCard({ auction }: Props) {
           {auction.status}
         </span>
 
+        {/* Origin badge */}
+        <span className={clsx('badge absolute bottom-3 left-3 text-white text-[10px]',
+          auction.origin === 'Judicial'   ? 'bg-amber-600/90' :
+          auction.origin === 'Concursal'  ? 'bg-red-700/90'   : 'bg-gray-700/70'
+        )}>
+          {auction.origin ?? 'Privado'}
+        </span>
+
         {/* Favorite button */}
         <FavoriteButton auctionId={auction.id} variant="card" />
 

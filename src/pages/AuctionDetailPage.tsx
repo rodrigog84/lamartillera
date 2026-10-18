@@ -128,6 +128,10 @@ export default function AuctionDetailPage() {
                 <span className={clsx('badge', auction.status === 'Disponible' ? 'bg-green-100 text-green-700' : auction.status === 'Adjudicada' ? 'bg-gray-100 text-gray-600' : 'bg-amber-100 text-amber-700')}>{auction.status}</span>
                 <span className="badge bg-brand-purple-100 text-brand-purple-700">{auction.propertyType}</span>
                 <span className="badge bg-brand-blue-50 text-brand-blue-600">{auction.category ?? 'Inmuebles'}</span>
+                <span className={clsx('badge text-white',
+                  auction.origin === 'Judicial'  ? 'bg-amber-600' :
+                  auction.origin === 'Concursal' ? 'bg-red-700'   : 'bg-gray-500'
+                )}>Remate {auction.origin ?? 'Privado'}</span>
                 {auction.featured && <span className="badge bg-brand-blue-100 text-brand-blue-700">Destacado</span>}
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-4">{auction.title}</h1>

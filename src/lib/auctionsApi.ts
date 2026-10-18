@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Auction, AuctionCategory, AuctionStatus, Currency, PropertyType } from '../types';
+import { Auction, AuctionCategory, AuctionOrigin, AuctionStatus, Currency, PropertyType } from '../types';
 import { getMockAuctions, saveMockAuctions } from '../data/mockAuctions';
 
 const MOCK = import.meta.env.VITE_MOCK_MODE === 'true';
@@ -25,6 +25,7 @@ type AuctionRow = {
   bathrooms: number | null;
   parking_spaces: number | null;
   occupation: 'Desocupada' | 'Ocupada' | 'Arrendada';
+  origin: AuctionOrigin;
   featured: boolean;
   external_registration_url: string;
   doc_bases: string | null;
@@ -55,6 +56,7 @@ function rowToAuction(row: AuctionRow): Auction {
     bathrooms: row.bathrooms ?? undefined,
     parkingSpaces: row.parking_spaces ?? undefined,
     occupation: row.occupation,
+    origin: row.origin,
     featured: row.featured,
     externalRegistrationUrl: row.external_registration_url,
     documents: {
@@ -87,6 +89,7 @@ function auctionToRow(a: Omit<Auction, 'id' | 'createdAt'>) {
     bathrooms: a.bathrooms ?? null,
     parking_spaces: a.parkingSpaces ?? null,
     occupation: a.occupation,
+    origin: a.origin,
     featured: a.featured,
     external_registration_url: a.externalRegistrationUrl,
     doc_bases: a.documents?.basesDelRemate ?? null,

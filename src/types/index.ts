@@ -23,6 +23,8 @@ export type PropertyType =
 
 export type AuctionStatus = 'Disponible' | 'Adjudicada' | 'Próximamente';
 
+export type AuctionOrigin = 'Privado' | 'Judicial' | 'Concursal';
+
 export type Currency = 'CLP' | 'UF';
 
 export interface AuctionDocument {
@@ -52,6 +54,7 @@ export interface Auction {
   bathrooms?: number;
   parkingSpaces?: number;
   occupation: 'Desocupada' | 'Ocupada' | 'Arrendada';
+  origin: AuctionOrigin;
   featured: boolean;
   externalRegistrationUrl: string;
   documents?: AuctionDocument;
