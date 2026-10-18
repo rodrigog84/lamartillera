@@ -37,6 +37,8 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-9 h-9 rounded-lg bg-white/10 hover:bg-brand-purple-500 flex items-center justify-center transition-colors"
                 >
                   <Icon className="w-4 h-4" />
