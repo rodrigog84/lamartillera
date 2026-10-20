@@ -21,9 +21,15 @@ export default function UserLoginPage() {
     setError('');
     setLoading(true);
     const { ok, error: err } = await loginUser(form.email, form.password);
+    if (!ok) { setLoading(false); setError(err ?? 'Error al iniciar sesión.'); return; }
+    // Si es admin, redirigir al panel de administración
+    const user = await import('../utils/userAuth').then(m => m.getCurrentUser());
     setLoading(false);
-    if (!ok) { setError(err ?? 'Error al iniciar sesión.'); return; }
-    navigate(next, { replace: true });
+    if (user?.isAdmin) {
+      navigate('/admin', { replace: true });
+    } else {
+      navigate(next, { replace: true });
+    }
   };
 
   return (
