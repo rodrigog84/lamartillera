@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import AuctionsPage from './pages/AuctionsPage';
@@ -41,6 +47,7 @@ function ProtectedAdmin() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/"              element={<HomePage />} />
