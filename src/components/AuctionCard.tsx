@@ -32,18 +32,18 @@ export default function AuctionCard({ auction }: Props) {
         {/* Overlays */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
-        {/* Status badge */}
-        <span className={clsx('badge absolute top-3 left-3', STATUS_STYLES[auction.status])}>
-          {auction.status}
-        </span>
+        {/* Status + Property type stacked */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1">
+          <span className={clsx('badge', STATUS_STYLES[auction.status])}>
+            {auction.status}
+          </span>
+          <span className="badge bg-white/90 text-gray-700">
+            {auction.propertyType}
+          </span>
+        </div>
 
         {/* Favorite button */}
         <FavoriteButton auctionId={auction.id} variant="card" />
-
-        {/* Property type */}
-        <span className="badge absolute top-3 left-12 bg-white/90 text-gray-700">
-          {auction.propertyType}
-        </span>
 
         {/* Countdown */}
         {auction.status === 'Disponible' && days >= 0 && (
