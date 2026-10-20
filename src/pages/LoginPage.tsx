@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
-import { login, getSession } from '../utils/auth';
+import { loginUser, initUserSession } from '../utils/userAuth';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,8 +12,9 @@ export default function LoginPage() {
   const [loading, setLoading]   = useState(false);
 
   useEffect(() => {
-    getSession().then(session => {
-      if (session) navigate('/admin', { replace: true });
+    // Solo redirigir si la sesión activa es de un admin
+    initUserSession().then(user => {
+      if (user?.isAdmin) navigate('/admin', { replace: true });
     });
   }, [navigate]);
 
@@ -21,11 +22,18 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const ok = await login(email, password);
+    const { ok, error: err } = await loginUser(email, password);
     if (ok) {
-      navigate('/admin', { replace: true });
+      // Verificar que el usuario tiene permisos de admin
+      const user = await initUserSession();
+      if (user?.isAdmin) {
+        navigate('/admin', { replace: true });
+      } else {
+        setError('No tienes permisos de administrador.');
+        setLoading(false);
+      }
     } else {
-      setError('Email o contraseña incorrectos.');
+      setError(err ?? 'Email o contraseña incorrectos.');
       setLoading(false);
     }
   };

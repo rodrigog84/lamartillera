@@ -8,6 +8,7 @@ export interface UserProfile {
   email: string;
   phone?: string;
   createdAt: string;
+  isAdmin?: boolean;
 }
 
 const MOCK = import.meta.env.VITE_MOCK_MODE === 'true';
@@ -65,6 +66,7 @@ export async function initUserSession(): Promise<UserProfile | null> {
     email: session.user.email ?? '',
     phone: profile.phone ?? undefined,
     createdAt: profile.created_at,
+    isAdmin: profile.is_admin === true,
   };
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   return user;
@@ -155,6 +157,7 @@ export async function loginUser(
     email: data.user.email ?? '',
     phone: profile?.phone ?? undefined,
     createdAt: profile?.created_at ?? new Date().toISOString(),
+    isAdmin: profile?.is_admin === true,
   };
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   return { ok: true };

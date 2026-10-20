@@ -20,7 +20,6 @@ import NotFoundPage from './pages/NotFoundPage';
 import UserRegisterPage from './pages/UserRegisterPage';
 import UserLoginPage from './pages/UserLoginPage';
 import UserDashboardPage from './pages/UserDashboardPage';
-import { getSession } from './utils/auth';
 import { initUserSession } from './utils/userAuth';
 import { Loader2 } from 'lucide-react';
 
@@ -29,8 +28,8 @@ function ProtectedAdmin() {
   const [authed, setAuthed]     = useState(false);
 
   useEffect(() => {
-    getSession().then(session => {
-      setAuthed(!!session);
+    initUserSession().then(user => {
+      setAuthed(user?.isAdmin === true);
       setChecking(false);
     });
   }, []);
