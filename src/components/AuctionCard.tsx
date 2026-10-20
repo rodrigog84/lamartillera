@@ -37,14 +37,6 @@ export default function AuctionCard({ auction }: Props) {
           {auction.status}
         </span>
 
-        {/* Origin badge */}
-        <span className={clsx('badge absolute bottom-3 left-3 text-white text-[10px]',
-          auction.origin === 'Judicial'   ? 'bg-amber-600/90' :
-          auction.origin === 'Concursal'  ? 'bg-red-700/90'   : 'bg-gray-700/70'
-        )}>
-          {auction.origin ?? 'Privado'}
-        </span>
-
         {/* Favorite button */}
         <FavoriteButton auctionId={auction.id} variant="card" />
 
@@ -71,6 +63,14 @@ export default function AuctionCard({ auction }: Props) {
 
       {/* Body */}
       <div className="flex flex-col flex-1 p-5">
+        {/* Origin badge */}
+        <span className={clsx('self-start badge mb-2 text-white text-[10px]',
+          auction.origin === 'Judicial'  ? 'bg-amber-600' :
+          auction.origin === 'Concursal' ? 'bg-red-700'   : 'bg-gray-500'
+        )}>
+          {auction.origin ?? 'Privado'}
+        </span>
+
         <h3 className="font-semibold text-gray-900 text-base mb-1 line-clamp-2 group-hover:text-brand-purple-600 transition-colors">
           {auction.title}
         </h3>

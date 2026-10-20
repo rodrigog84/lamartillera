@@ -245,7 +245,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
 
 // ── LocalStorage helpers (solo mock mode) ──
 const STORAGE_KEY = 'lamartillera_auctions';
-const STORAGE_VERSION = '4';
+const STORAGE_VERSION = '5';
 
 export function getMockAuctions(): Auction[] {
   try {
