@@ -4,7 +4,7 @@ import { Search, SlidersHorizontal, X, ChevronDown, Building2, Car, Package, Loa
 import { useAuctions } from '../hooks/useAuctions';
 import { CATEGORY_PROPERTY_TYPES, REGIONS, AUCTION_CATEGORIES } from '../utils/format';
 import AuctionCard from '../components/AuctionCard';
-import { Auction, AuctionCategory } from '../types';
+import { Auction, AuctionCategory, AuctionOrigin } from '../types';
 
 type SortOption = 'date-asc' | 'date-desc' | 'price-asc' | 'price-desc' | 'newest';
 
@@ -32,6 +32,7 @@ export default function AuctionsPage() {
   const [selectedRegion, setSelectedRegion]   = useState('');
   const [selectedStatus, setSelectedStatus]   = useState<Auction['status'] | ''>('');
   const [selectedPriceRange, setSelectedPriceRange] = useState(0);
+  const [selectedOrigins, setSelectedOrigins]   = useState<AuctionOrigin[]>([]);
   const [sortBy, setSortBy]                   = useState<SortOption>('date-asc');
   const [filtersOpen, setFiltersOpen]           = useState(false);
 
@@ -66,6 +67,7 @@ export default function AuctionsPage() {
     if (selectedTypes.length > 0) result = result.filter(a => selectedTypes.includes(a.propertyType));
     if (selectedRegion) result = result.filter(a => a.region === selectedRegion);
     if (selectedStatus) result = result.filter(a => a.status === selectedStatus);
+    if (selectedOrigins.length > 0) result = result.filter(a => selectedOrigins.includes(a.origin ?? 'Privado'));
     if (selectedPriceRange > 0) {
       const range = PRICE_RANGES[selectedPriceRange];
       result = result.filter(a => {
@@ -85,17 +87,20 @@ export default function AuctionsPage() {
       }
     });
     return result;
-  }, [auctions, search, selectedCategory, selectedTypes, selectedRegion, selectedStatus, selectedPriceRange, sortBy]);
+  }, [auctions, search, selectedCategory, selectedTypes, selectedRegion, selectedStatus, selectedOrigins, selectedPriceRange, sortBy]);
 
   const toggleType = (type: string) =>
     setSelectedTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
 
+  const toggleOrigin = (origin: AuctionOrigin) =>
+    setSelectedOrigins(prev => prev.includes(origin) ? prev.filter(o => o !== origin) : [...prev, origin]);
+
   const clearFilters = () => {
     setSearch(''); setSelectedCategory(''); setSelectedTypes([]);
-    setSelectedRegion(''); setSelectedStatus(''); setSelectedPriceRange(0);
+    setSelectedRegion(''); setSelectedStatus(''); setSelectedPriceRange(0); setSelectedOrigins([]);
   };
 
-  const hasFilters = search || selectedCategory || selectedTypes.length > 0 || selectedRegion || selectedStatus || selectedPriceRange > 0;
+  const hasFilters = search || selectedCategory || selectedTypes.length > 0 || selectedRegion || selectedStatus || selectedPriceRange > 0 || selectedOrigins.length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -150,6 +155,15 @@ export default function AuctionsPage() {
                   <label key={s} className="flex items-center gap-2.5 cursor-pointer group">
                     <input type="radio" name="status" checked={selectedStatus === s} onChange={() => setSelectedStatus(selectedStatus === s ? '' : s)} className="accent-brand-purple-500" />
                     <span className="text-sm text-gray-600 group-hover:text-gray-900">{s}</span>
+                  </label>
+                ))}
+              </FilterSection>
+
+              <FilterSection title="Origen">
+                {(['Privado', 'Judicial', 'Concursal'] as AuctionOrigin[]).map(o => (
+                  <label key={o} className="flex items-center gap-2.5 cursor-pointer group">
+                    <input type="checkbox" checked={selectedOrigins.includes(o)} onChange={() => toggleOrigin(o)} className="accent-brand-purple-500" />
+                    <span className="text-sm text-gray-600 group-hover:text-gray-900">{o}</span>
                   </label>
                 ))}
               </FilterSection>
@@ -214,6 +228,7 @@ export default function AuctionsPage() {
                 {selectedTypes.map(t => <button key={t} onClick={() => toggleType(t)} className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-purple-100 text-brand-purple-700 rounded-full text-xs font-medium">{t} <X className="w-3.5 h-3.5" /></button>)}
                 {selectedRegion && <button onClick={() => setSelectedRegion('')} className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue-100 text-brand-blue-700 rounded-full text-xs font-medium">{selectedRegion} <X className="w-3.5 h-3.5" /></button>}
                 {selectedStatus && <button onClick={() => setSelectedStatus('')} className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">{selectedStatus} <X className="w-3.5 h-3.5" /></button>}
+                {selectedOrigins.map(o => <button key={o} onClick={() => toggleOrigin(o)} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">{o} <X className="w-3.5 h-3.5" /></button>)}
                 {selectedPriceRange > 0 && <button onClick={() => setSelectedPriceRange(0)} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">{PRICE_RANGES[selectedPriceRange].label} <X className="w-3.5 h-3.5" /></button>}
               </div>
             )}
@@ -232,6 +247,14 @@ export default function AuctionsPage() {
                       <label key={s} className="flex items-center gap-2.5 cursor-pointer">
                         <input type="radio" name="mstatus" checked={selectedStatus === s} onChange={() => setSelectedStatus(selectedStatus === s ? '' : s)} className="accent-brand-purple-500" />
                         <span className="text-sm text-gray-600">{s}</span>
+                      </label>
+                    ))}
+                  </FilterSection>
+                  <FilterSection title="Origen">
+                    {(['Privado', 'Judicial', 'Concursal'] as AuctionOrigin[]).map(o => (
+                      <label key={o} className="flex items-center gap-2.5 cursor-pointer">
+                        <input type="checkbox" checked={selectedOrigins.includes(o)} onChange={() => toggleOrigin(o)} className="accent-brand-purple-500" />
+                        <span className="text-sm text-gray-600">{o}</span>
                       </label>
                     ))}
                   </FilterSection>
