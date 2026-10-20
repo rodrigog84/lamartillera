@@ -18,8 +18,8 @@ export default function UserDashboardPage() {
 function Dashboard({ user }: { user: UserProfile }) {
   const [tab, setTab] = useState<Tab>('favoritos');
 
-  const handleLogout = () => {
-    logoutUser();
+  const handleLogout = async () => {
+    await logoutUser();
     window.location.href = '/';
   };
 

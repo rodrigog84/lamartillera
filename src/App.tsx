@@ -21,6 +21,7 @@ import UserRegisterPage from './pages/UserRegisterPage';
 import UserLoginPage from './pages/UserLoginPage';
 import UserDashboardPage from './pages/UserDashboardPage';
 import { getSession } from './utils/auth';
+import { initUserSession } from './utils/userAuth';
 import { Loader2 } from 'lucide-react';
 
 function ProtectedAdmin() {
@@ -45,6 +46,9 @@ function ProtectedAdmin() {
 }
 
 export default function App() {
+  // Valida sesión de usuario al arrancar (refresca el cache de localStorage)
+  useEffect(() => { initUserSession(); }, []);
+
   return (
     <BrowserRouter>
       <ScrollToTop />

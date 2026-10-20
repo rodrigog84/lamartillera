@@ -13,14 +13,14 @@ export default function FavoriteButton({ auctionId, variant = 'card' }: Props) {
   const navigate = useNavigate();
   const fav = isFav(auctionId);
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLoggedIn) {
       navigate('/ingresar?next=' + encodeURIComponent(window.location.pathname));
       return;
     }
-    toggle(auctionId);
+    await toggle(auctionId);
   };
 
   if (variant === 'detail') {

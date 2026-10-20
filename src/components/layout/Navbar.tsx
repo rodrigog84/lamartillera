@@ -177,7 +177,7 @@ export default function Navbar() {
                   <Link to="/mi-cuenta" className="flex items-center gap-2 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50">
                     <Heart className="w-4 h-4 text-red-400" /> Mis favoritos
                   </Link>
-                  <button onClick={() => { logoutUser(); setUserProfile(null); }}
+                  <button onClick={async () => { await logoutUser(); setUserProfile(null); }}
                     className="flex items-center gap-2 px-4 py-3 text-sm text-gray-500 hover:text-gray-700">
                     <LogOut className="w-4 h-4" /> Cerrar sesión
                   </button>
