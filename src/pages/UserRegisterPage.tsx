@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { User, Mail, Phone, Lock, Eye, EyeOff, Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
 import { registerUser } from '../utils/userAuth';
 
 export default function UserRegisterPage() {
-  const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
   const [showPwd, setShowPwd]   = useState(false);
   const [loading, setLoading]   = useState(false);
@@ -24,7 +23,7 @@ export default function UserRegisterPage() {
     setLoading(false);
     if (!ok) { setError(err ?? 'Error al registrarse.'); return; }
     setSuccess(true);
-    setTimeout(() => navigate('/mi-cuenta'), 1500);
+    // No redirigir automáticamente: el usuario debe confirmar su email primero
   };
 
   return (
@@ -44,12 +43,21 @@ export default function UserRegisterPage() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           {success ? (
-            <div className="text-center py-6">
+            <div className="text-center py-8">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-green-500" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900 mb-1">¡Cuenta creada!</h2>
-              <p className="text-gray-500 text-sm">Redirigiendo a tu cuenta...</p>
+              <h2 className="text-lg font-bold text-gray-900 mb-2">¡Revisa tu correo!</h2>
+              <p className="text-gray-500 text-sm mb-4">
+                Te enviamos un email de confirmación a <strong>{form.email}</strong>.
+                Haz clic en el enlace para activar tu cuenta.
+              </p>
+              <p className="text-xs text-gray-400">
+                Si no lo ves, revisa la carpeta de spam.
+              </p>
+              <Link to="/ingresar" className="mt-6 inline-block text-sm text-brand-purple-500 font-medium hover:underline">
+                Ya confirmé mi email → Iniciar sesión
+              </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">

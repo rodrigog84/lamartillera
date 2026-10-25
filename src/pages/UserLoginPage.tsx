@@ -21,7 +21,15 @@ export default function UserLoginPage() {
     setError('');
     setLoading(true);
     const { ok, error: err } = await loginUser(form.email, form.password);
-    if (!ok) { setLoading(false); setError(err ?? 'Error al iniciar sesión.'); return; }
+    if (!ok) {
+      setLoading(false);
+      // Mensaje amigable si el email no está confirmado
+      const msg = err?.toLowerCase().includes('email not confirmed')
+        ? 'Debes confirmar tu email antes de ingresar. Revisa tu bandeja de entrada.'
+        : err ?? 'Email o contraseña incorrectos.';
+      setError(msg);
+      return;
+    }
     // Si es admin, redirigir al panel de administración
     const user = await import('../utils/userAuth').then(m => m.getCurrentUser());
     setLoading(false);
