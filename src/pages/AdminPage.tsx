@@ -7,7 +7,7 @@ import {
 import { useAuctions } from '../hooks/useAuctions';
 import { createAuction, updateAuction, deleteAuction } from '../lib/auctionsApi';
 import { uploadFile } from '../lib/storageApi';
-import { logout } from '../utils/auth';
+import { supabase } from '../lib/supabase';
 import { Auction, AuctionCategory, AuctionOrigin, AuctionStatus, Currency, PropertyType } from '../types';
 import { REGIONS, AUCTION_CATEGORIES, CATEGORY_PROPERTY_TYPES } from '../utils/format';
 
@@ -125,7 +125,7 @@ export default function AdminPage() {
   };
 
   const handleLogout = async () => {
-    await logout();
+    await supabase.auth.signOut();
     navigate('/login');
   };
 
