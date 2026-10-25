@@ -21,6 +21,7 @@ import UserRegisterPage from './pages/UserRegisterPage';
 import UserLoginPage from './pages/UserLoginPage';
 import UserDashboardPage from './pages/UserDashboardPage';
 import { initUserSession } from './utils/userAuth';
+import { supabase } from './lib/supabase';
 import { Loader2 } from 'lucide-react';
 
 function ProtectedAdmin() {
@@ -28,8 +29,12 @@ function ProtectedAdmin() {
   const [authed, setAuthed]     = useState(false);
 
   useEffect(() => {
-    initUserSession().then(user => {
-      setAuthed(user?.isAdmin === true);
+    // Admin siempre verifica contra Supabase directamente (no mock)
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) { setChecking(false); return; }
+      const { data: profile } = await supabase
+        .from('profiles').select('is_admin').eq('id', session.user.id).single();
+      setAuthed(profile?.is_admin === true);
       setChecking(false);
     });
   }, []);
