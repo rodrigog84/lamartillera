@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, AlertCircle, ArrowLeft } from 'lucide-react';
-import { loginUser, initUserSession } from '../utils/userAuth';
+import { supabase } from '../lib/supabase';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,9 +12,12 @@ export default function LoginPage() {
   const [loading, setLoading]   = useState(false);
 
   useEffect(() => {
-    // Solo redirigir si la sesión activa es de un admin
-    initUserSession().then(user => {
-      if (user?.isAdmin) navigate('/admin', { replace: true });
+    // El admin siempre usa Supabase real, independiente del MOCK mode
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      const { data: profile } = await supabase
+        .from('profiles').select('is_admin').eq('id', session.user.id).single();
+      if (profile?.is_admin) navigate('/admin', { replace: true });
     });
   }, [navigate]);
 
@@ -22,18 +25,28 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const { ok, error: err } = await loginUser(email, password);
-    if (ok) {
-      // Verificar que el usuario tiene permisos de admin
-      const user = await initUserSession();
-      if (user?.isAdmin) {
-        navigate('/admin', { replace: true });
-      } else {
-        setError('No tienes permisos de administrador.');
-        setLoading(false);
-      }
+
+    // Admin siempre autentica contra Supabase (nunca mock)
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    });
+
+    if (authError || !data.user) {
+      setError('Email o contraseña incorrectos.');
+      setLoading(false);
+      return;
+    }
+
+    // Verificar que tiene is_admin = true
+    const { data: profile } = await supabase
+      .from('profiles').select('is_admin').eq('id', data.user.id).single();
+
+    if (profile?.is_admin) {
+      navigate('/admin', { replace: true });
     } else {
-      setError(err ?? 'Email o contraseña incorrectos.');
+      await supabase.auth.signOut();
+      setError('No tienes permisos de administrador.');
       setLoading(false);
     }
   };
