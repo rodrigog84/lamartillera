@@ -14,12 +14,13 @@ export default function UserLoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError]     = useState('');
+  const [checking, setChecking] = useState(true);
 
   // Detectar sesión activa al volver de Google OAuth
   useEffect(() => {
     // Verificar sesión existente al montar
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) return;
+      if (!session) { setChecking(false); return; }
       const { data: profile } = await supabase
         .from('profiles').select('is_admin').eq('id', session.user.id).single();
       if (profile?.is_admin) {
@@ -44,6 +45,14 @@ export default function UserLoginPage() {
 
     return () => subscription.unsubscribe();
   }, [navigate, next]);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+      </div>
+    );
+  }
 
   const handleGoogle = async () => {
     setGoogleLoading(true);
