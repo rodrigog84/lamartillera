@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { loginUser } from '../utils/userAuth';
@@ -14,6 +14,36 @@ export default function UserLoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError]     = useState('');
+
+  // Detectar sesión activa al volver de Google OAuth
+  useEffect(() => {
+    // Verificar sesión existente al montar
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      const { data: profile } = await supabase
+        .from('profiles').select('is_admin').eq('id', session.user.id).single();
+      if (profile?.is_admin) {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate(next, { replace: true });
+      }
+    });
+
+    // Escuchar cambios de auth (cubre el redirect de OAuth)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        const { data: profile } = await supabase
+          .from('profiles').select('is_admin').eq('id', session.user.id).single();
+        if (profile?.is_admin) {
+          navigate('/admin', { replace: true });
+        } else {
+          navigate(next, { replace: true });
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, next]);
 
   const handleGoogle = async () => {
     setGoogleLoading(true);
