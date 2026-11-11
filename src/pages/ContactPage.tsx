@@ -1,15 +1,33 @@
 import { useState } from 'react';
-import { Phone, Mail, MapPin, Clock, CheckCircle, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, CheckCircle, Send, Loader2 } from 'lucide-react';
 import { PHONE_DISPLAY, WHATSAPP_NUMBER } from '../utils/format';
+import { supabase } from '../lib/supabase';
 
 export default function ContactPage() {
-  const [sent, setSent] = useState(false);
+  const [sent, setSent]       = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState('');
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
-    setForm({ name: '', email: '', phone: '', subject: '', message: '' });
+    setError('');
+    setLoading(true);
+
+    try {
+      const { error: fnError } = await supabase.functions.invoke('contact', {
+        body: form,
+      });
+
+      if (fnError) throw fnError;
+
+      setSent(true);
+      setForm({ name: '', email: '', phone: '', subject: '', message: '' });
+    } catch {
+      setError('Hubo un problema al enviar tu mensaje. Intenta nuevamente o escríbenos directamente a contacto@lamartillera.cl');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -144,8 +162,13 @@ export default function ContactPage() {
                       className="input resize-none"
                     />
                   </div>
-                  <button type="submit" className="btn-primary w-full justify-center py-4 text-base">
-                    <Send className="w-5 h-5" /> Enviar mensaje
+                  {error && (
+                    <p className="text-red-500 text-sm bg-red-50 rounded-xl px-4 py-3">{error}</p>
+                  )}
+                  <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-4 text-base disabled:opacity-70">
+                    {loading
+                      ? <><Loader2 className="w-5 h-5 animate-spin" /> Enviando...</>
+                      : <><Send className="w-5 h-5" /> Enviar mensaje</>}
                   </button>
                 </form>
               </>
