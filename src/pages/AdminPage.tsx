@@ -524,39 +524,73 @@ interface AdminUser {
 }
 
 function AdminUsersTab() {
-  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [toggling, setToggling] = useState<string | null>(null);
+  const [removing, setRemoving] = useState<string | null>(null);
 
-  const load = async () => {
+  // Agregar nuevo admin
+  const [searchEmail, setSearchEmail] = useState('');
+  const [searchResult, setSearchResult] = useState<AdminUser | null | 'not-found'>(null);
+  const [searching, setSearching] = useState(false);
+  const [adding, setAdding] = useState(false);
+
+  const loadAdmins = async () => {
     setLoading(true);
     setError('');
     const { data, error: rpcError } = await supabase.rpc('get_all_users_admin');
     if (rpcError) setError(rpcError.message);
-    else setUsers((data as AdminUser[]) ?? []);
+    else setAdmins(((data as AdminUser[]) ?? []).filter(u => u.is_admin));
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { loadAdmins(); }, []);
 
-  const toggleAdmin = async (user: AdminUser) => {
-    if (toggling) return;
-    const newVal = !user.is_admin;
-    // Protección: no se puede quitar el último admin
-    if (!newVal && users.filter(u => u.is_admin).length <= 1) {
-      alert('No puedes quitar el rol de administrador al único admin existente.');
-      return;
-    }
-    if (!confirm(`¿${newVal ? 'Dar' : 'Quitar'} acceso de administrador a ${user.name} (${user.email})?`)) return;
-    setToggling(user.id);
+  // Buscar usuario por email para promover a admin
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchEmail.trim()) return;
+    setSearching(true);
+    setSearchResult(null);
+    const { data } = await supabase.rpc('get_all_users_admin');
+    const found = ((data as AdminUser[]) ?? []).find(
+      u => u.email.toLowerCase() === searchEmail.trim().toLowerCase()
+    );
+    setSearchResult(found ?? 'not-found');
+    setSearching(false);
+  };
+
+  const handleAddAdmin = async () => {
+    if (!searchResult || searchResult === 'not-found') return;
+    if (!confirm(`¿Dar acceso de administrador a ${searchResult.name} (${searchResult.email})?`)) return;
+    setAdding(true);
+    // Upsert: crea la fila en profiles si no existe, o actualiza si ya existe
     const { error } = await supabase
       .from('profiles')
-      .update({ is_admin: newVal })
-      .eq('id', user.id);
+      .upsert({ id: searchResult.id, is_admin: true }, { onConflict: 'id' });
+    if (error) {
+      alert(error.message);
+    } else {
+      setSearchEmail('');
+      setSearchResult(null);
+      await loadAdmins();
+    }
+    setAdding(false);
+  };
+
+  const handleRemove = async (user: AdminUser) => {
+    if (admins.length <= 1) {
+      alert('No puedes quitar el acceso al único administrador existente.');
+      return;
+    }
+    if (!confirm(`¿Quitar acceso de administrador a ${user.name} (${user.email})?`)) return;
+    setRemoving(user.id);
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({ id: user.id, is_admin: false }, { onConflict: 'id' });
     if (error) alert(error.message);
-    else setUsers(prev => prev.map(u => u.id === user.id ? { ...u, is_admin: newVal } : u));
-    setToggling(null);
+    else setAdmins(prev => prev.filter(u => u.id !== user.id));
+    setRemoving(null);
   };
 
   if (loading) return (
@@ -565,22 +599,15 @@ function AdminUsersTab() {
     </div>
   );
 
-  const admins = users.filter(u => u.is_admin);
-  const others = users.filter(u => !u.is_admin);
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-3xl">
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4 text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
         </div>
       )}
 
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 text-sm text-amber-800">
-        <strong>Nota:</strong> Para agregar un nuevo administrador, la persona primero debe registrarse en el sitio como usuario normal. Luego aparecerá aquí y podrás activarle el acceso.
-      </div>
-
-      {/* Admins actuales */}
+      {/* Lista de admins activos */}
       <div>
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-green-500" /> Administradores activos ({admins.length})
@@ -592,8 +619,8 @@ function AdminUsersTab() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  {['Usuario', 'Email', 'Desde', 'Acceso'].map(h => (
-                    <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
+                  {['Usuario', 'Email', 'Desde', ''].map((h, i) => (
+                    <th key={i} className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -610,15 +637,14 @@ function AdminUsersTab() {
                     </td>
                     <td className="px-5 py-4 text-gray-500">{u.email}</td>
                     <td className="px-5 py-4 text-gray-400 text-xs">{new Date(u.created_at).toLocaleDateString('es-CL')}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 text-right">
                       <button
-                        onClick={() => toggleAdmin(u)}
-                        disabled={toggling === u.id}
-                        title="Quitar acceso de administrador"
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 hover:bg-red-100 hover:text-red-600 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                        onClick={() => handleRemove(u)}
+                        disabled={removing === u.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ml-auto"
                       >
-                        {toggling === u.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-                        Admin activo
+                        {removing === u.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldOff className="w-3.5 h-3.5" />}
+                        Quitar acceso
                       </button>
                     </td>
                   </tr>
@@ -629,51 +655,64 @@ function AdminUsersTab() {
         </div>
       </div>
 
-      {/* Usuarios sin acceso admin */}
+      {/* Agregar nuevo admin por email */}
       <div>
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <ShieldOff className="w-4 h-4 text-gray-400" /> Otros usuarios ({others.length})
+          <Plus className="w-4 h-4" /> Agregar administrador
         </h2>
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          {others.length === 0 ? (
-            <p className="text-center py-8 text-gray-400 text-sm">No hay otros usuarios registrados</p>
-          ) : (
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr>
-                  {['Usuario', 'Email', 'Desde', 'Acceso'].map(h => (
-                    <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {others.map(u => (
-                  <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs font-bold">
-                          {u.name?.charAt(0)?.toUpperCase() ?? '?'}
-                        </div>
-                        <span className="font-medium text-gray-900">{u.name || '—'}</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 text-gray-500">{u.email}</td>
-                    <td className="px-5 py-4 text-gray-400 text-xs">{new Date(u.created_at).toLocaleDateString('es-CL')}</td>
-                    <td className="px-5 py-4">
-                      <button
-                        onClick={() => toggleAdmin(u)}
-                        disabled={toggling === u.id}
-                        title="Dar acceso de administrador"
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-600 hover:bg-brand-purple-100 hover:text-brand-purple-700 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
-                      >
-                        {toggling === u.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldOff className="w-3.5 h-3.5" />}
-                        Sin acceso
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <p className="text-sm text-gray-500 mb-4">
+            Ingresa el email de la persona. Debe tener una cuenta en el sistema con email y contraseña (no Google).
+          </p>
+          <form onSubmit={handleSearch} className="flex gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="email"
+                value={searchEmail}
+                onChange={e => { setSearchEmail(e.target.value); setSearchResult(null); }}
+                placeholder="correo@ejemplo.cl"
+                className="input pl-9 w-full"
+                required
+              />
+            </div>
+            <button type="submit" disabled={searching || !searchEmail.trim()}
+              className="btn-primary flex items-center gap-2 whitespace-nowrap">
+              {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              Buscar
+            </button>
+          </form>
+
+          {/* Resultado de búsqueda */}
+          {searchResult === 'not-found' && (
+            <div className="mt-4 flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              No hay ningún usuario registrado con ese email.
+            </div>
+          )}
+          {searchResult && searchResult !== 'not-found' && (
+            <div className="mt-4 flex items-center justify-between bg-brand-purple-50 border border-brand-purple-200 px-4 py-3 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-blue-500 to-brand-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                  {searchResult.name?.charAt(0)?.toUpperCase() ?? '?'}
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 text-sm">{searchResult.name}</p>
+                  <p className="text-xs text-gray-500">{searchResult.email}</p>
+                </div>
+              </div>
+              {searchResult.is_admin ? (
+                <span className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Ya es administrador
+                </span>
+              ) : (
+                <button onClick={handleAddAdmin} disabled={adding}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-brand-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-purple-700 transition-colors disabled:opacity-50">
+                  {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                  Dar acceso admin
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
