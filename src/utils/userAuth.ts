@@ -48,6 +48,16 @@ export async function initUserSession(): Promise<UserProfile | null> {
     return null;
   }
 
+  // Verificar confirmación de email para usuarios de email/password
+  // (los de Google OAuth están siempre confirmados)
+  const isEmailProvider = session.user.app_metadata?.provider === 'email';
+  const isEmailConfirmed = !!session.user.email_confirmed_at;
+  if (isEmailProvider && !isEmailConfirmed) {
+    await supabase.auth.signOut();
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
+
   // Obtener perfil desde la tabla profiles
   const { data: profile } = await supabase
     .from('profiles')
@@ -112,14 +122,8 @@ export async function registerUser(
     phone: phone?.trim() || null,
   });
 
-  const user: UserProfile = {
-    id: data.user.id,
-    name: name.trim(),
-    email: email.trim().toLowerCase(),
-    phone: phone?.trim() || undefined,
-    createdAt: new Date().toISOString(),
-  };
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  // NO guardar sesión en localStorage: el usuario debe confirmar su email primero
+  // (si Supabase devuelve sesión antes de confirmar, la ignoramos)
   return { ok: true };
 }
 
