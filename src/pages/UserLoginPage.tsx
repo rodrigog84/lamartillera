@@ -146,7 +146,12 @@ export default function UserLoginPage() {
 
             {/* Contraseña */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Contraseña</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+                <Link to="/recuperar-contrasena" className="text-xs text-brand-purple-500 hover:underline">
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input type={showPwd ? 'text' : 'password'} required value={form.password} onChange={set('password')}

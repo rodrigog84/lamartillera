@@ -20,6 +20,8 @@ import NotFoundPage from './pages/NotFoundPage';
 import UserRegisterPage from './pages/UserRegisterPage';
 import UserLoginPage from './pages/UserLoginPage';
 import UserDashboardPage from './pages/UserDashboardPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import { initUserSession } from './utils/userAuth';
 import { supabase } from './lib/supabase';
 import { Loader2 } from 'lucide-react';
@@ -69,9 +71,11 @@ export default function App() {
         </Route>
         <Route path="/login"     element={<LoginPage />} />
         <Route path="/admin"     element={<ProtectedAdmin />} />
-        <Route path="/registro"  element={<UserRegisterPage />} />
-        <Route path="/ingresar"  element={<UserLoginPage />} />
-        <Route path="/mi-cuenta" element={<UserDashboardPage />} />
+        <Route path="/registro"             element={<UserRegisterPage />} />
+        <Route path="/ingresar"             element={<UserLoginPage />} />
+        <Route path="/mi-cuenta"            element={<UserDashboardPage />} />
+        <Route path="/recuperar-contrasena" element={<ForgotPasswordPage />} />
+        <Route path="/nueva-contrasena"     element={<ResetPasswordPage />} />
       </Routes>
     </BrowserRouter>
   );
