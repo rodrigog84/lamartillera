@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus, Edit2, Trash2, X, Save, LogOut, Search,
   LayoutGrid, Upload, Loader2, AlertCircle, RefreshCw,
+  Users, ShieldCheck, ShieldOff,
 } from 'lucide-react';
 import { useAuctions } from '../hooks/useAuctions';
 import { createAuction, updateAuction, deleteAuction } from '../lib/auctionsApi';
@@ -41,9 +42,12 @@ const EMPTY_FORM: FormData = {
   documents: {},
 };
 
+type Tab = 'subastas' | 'administradores';
+
 export default function AdminPage() {
   const navigate = useNavigate();
   const { auctions, loading, error, reload } = useAuctions();
+  const [activeTab, setActiveTab] = useState<Tab>('subastas');
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -179,90 +183,122 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Topbar */}
-      <div className="hero-gradient px-4 sm:px-6 lg:px-8 py-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-black text-white">Panel de Administración</h1>
-            <p className="text-blue-200 text-sm mt-0.5">{auctions.length} subasta{auctions.length !== 1 ? 's' : ''} en total</p>
+      <div className="hero-gradient px-4 sm:px-6 lg:px-8 pt-6 pb-0">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h1 className="text-3xl font-black text-white">Panel de Administración</h1>
+              <p className="text-blue-200 text-sm mt-0.5">{auctions.length} subasta{auctions.length !== 1 ? 's' : ''} en total</p>
+            </div>
+            <div className="flex items-center gap-3">
+              {activeTab === 'subastas' && (
+                <>
+                  <button onClick={reload} title="Actualizar" className="p-2.5 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-colors">
+                    <RefreshCw className="w-4 h-4" />
+                  </button>
+                  <button onClick={openNew} className="flex items-center gap-2 px-5 py-2.5 bg-white text-brand-purple-600 font-bold rounded-xl hover:bg-blue-50 transition-colors shadow-lg">
+                    <Plus className="w-5 h-5" /> Nueva subasta
+                  </button>
+                </>
+              )}
+              <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2.5 bg-white/20 hover:bg-white/30 text-white font-medium rounded-xl transition-colors text-sm">
+                <LogOut className="w-4 h-4" /> Salir
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={reload} title="Actualizar" className="p-2.5 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-colors">
-              <RefreshCw className="w-4 h-4" />
-            </button>
-            <button onClick={openNew} className="flex items-center gap-2 px-5 py-2.5 bg-white text-brand-purple-600 font-bold rounded-xl hover:bg-blue-50 transition-colors shadow-lg">
-              <Plus className="w-5 h-5" /> Nueva subasta
-            </button>
-            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2.5 bg-white/20 hover:bg-white/30 text-white font-medium rounded-xl transition-colors text-sm">
-              <LogOut className="w-4 h-4" /> Salir
-            </button>
+          {/* Tabs */}
+          <div className="flex gap-1">
+            {([
+              { id: 'subastas', label: 'Subastas', icon: LayoutGrid },
+              { id: 'administradores', label: 'Administradores', icon: Users },
+            ] as { id: Tab; label: string; icon: React.ElementType }[]).map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={clsx(
+                  'flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-t-xl transition-colors',
+                  activeTab === id
+                    ? 'bg-gray-50 text-brand-purple-700'
+                    : 'text-blue-200 hover:text-white hover:bg-white/10'
+                )}
+              >
+                <Icon className="w-4 h-4" /> {label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search */}
-        <div className="relative max-w-md mb-6">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          <input type="text" placeholder="Buscar subasta…" value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple-400" />
-        </div>
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4 mb-6 text-sm flex items-center gap-2"><AlertCircle className="w-4 h-4 flex-shrink-0" />{error}</div>}
-
-        {/* Table */}
-        {loading ? (
-          <div className="flex items-center justify-center py-24">
-            <Loader2 className="w-8 h-8 animate-spin text-brand-purple-400" />
+        {/* ── Tab: Subastas ── */}
+        {activeTab === 'subastas' && (<>
+          <div className="relative max-w-md mb-6">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <input type="text" placeholder="Buscar subasta…" value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple-400" />
           </div>
-        ) : (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            {filtered.length === 0 ? (
-              <div className="text-center py-16">
-                <LayoutGrid className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-400">No hay subastas. ¡Crea la primera!</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                      {['Subasta', 'Categoría', 'Estado', 'Precio', 'Fecha', 'Acciones'].map(h => (
-                        <th key={h} className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {filtered.map(a => (
-                      <tr key={a.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-5 py-4">
-                          <p className="font-semibold text-gray-900 max-w-xs truncate">{a.title}</p>
-                          <p className="text-xs text-gray-400 mt-0.5">{a.commune}, {a.region.split(' - ')[1] ?? a.region}</p>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="px-2 py-1 bg-brand-blue-50 text-brand-blue-700 text-xs font-medium rounded-full">{a.category ?? 'Inmuebles'}</span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className={clsx('px-2.5 py-1 rounded-full text-xs font-medium', a.status === 'Disponible' ? 'bg-green-100 text-green-700' : a.status === 'Adjudicada' ? 'bg-gray-100 text-gray-600' : 'bg-amber-100 text-amber-700')}>
-                            {a.status}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4 font-semibold text-brand-purple-600">{a.minPrice.toLocaleString('es-CL')} {a.currency}</td>
-                        <td className="px-5 py-4 text-gray-500">{a.auctionDate}</td>
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-2">
-                            <button onClick={() => openEdit(a)} className="p-2 text-gray-500 hover:text-brand-blue-600 hover:bg-brand-blue-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
-                            <button onClick={() => handleDelete(a.id, a.title)} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
-                          </div>
-                        </td>
+
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4 mb-6 text-sm flex items-center gap-2"><AlertCircle className="w-4 h-4 flex-shrink-0" />{error}</div>}
+
+          {loading ? (
+            <div className="flex items-center justify-center py-24">
+              <Loader2 className="w-8 h-8 animate-spin text-brand-purple-400" />
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              {filtered.length === 0 ? (
+                <div className="text-center py-16">
+                  <LayoutGrid className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-400">No hay subastas. ¡Crea la primera!</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 border-b border-gray-100">
+                      <tr>
+                        {['Subasta', 'Categoría', 'Estado', 'Precio', 'Fecha', 'Acciones'].map(h => (
+                          <th key={h} className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {filtered.map(a => (
+                        <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-5 py-4">
+                            <p className="font-semibold text-gray-900 max-w-xs truncate">{a.title}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">{a.commune}, {a.region.split(' - ')[1] ?? a.region}</p>
+                          </td>
+                          <td className="px-5 py-4">
+                            <span className="px-2 py-1 bg-brand-blue-50 text-brand-blue-700 text-xs font-medium rounded-full">{a.category ?? 'Inmuebles'}</span>
+                          </td>
+                          <td className="px-5 py-4">
+                            <span className={clsx('px-2.5 py-1 rounded-full text-xs font-medium', a.status === 'Disponible' ? 'bg-green-100 text-green-700' : a.status === 'Adjudicada' ? 'bg-gray-100 text-gray-600' : 'bg-amber-100 text-amber-700')}>
+                              {a.status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 font-semibold text-brand-purple-600">{a.minPrice.toLocaleString('es-CL')} {a.currency}</td>
+                          <td className="px-5 py-4 text-gray-500">{a.auctionDate}</td>
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-2">
+                              <button onClick={() => openEdit(a)} className="p-2 text-gray-500 hover:text-brand-blue-600 hover:bg-brand-blue-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                              <button onClick={() => handleDelete(a.id, a.title)} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+        </>)}
+
+        {/* ── Tab: Administradores ── */}
+        {activeTab === 'administradores' && <AdminUsersTab />}
+
       </div>
 
       {/* ── Form modal ── */}
@@ -476,6 +512,176 @@ export default function AdminPage() {
     </div>
   );
 }
+
+// ── Admin Users Tab ──────────────────────────────────────────────────────────
+
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  is_admin: boolean;
+  created_at: string;
+}
+
+function AdminUsersTab() {
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [toggling, setToggling] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    setError('');
+    const { data, error: rpcError } = await supabase.rpc('get_all_users_admin');
+    if (rpcError) setError(rpcError.message);
+    else setUsers((data as AdminUser[]) ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const toggleAdmin = async (user: AdminUser) => {
+    if (toggling) return;
+    const newVal = !user.is_admin;
+    // Protección: no se puede quitar el último admin
+    if (!newVal && users.filter(u => u.is_admin).length <= 1) {
+      alert('No puedes quitar el rol de administrador al único admin existente.');
+      return;
+    }
+    if (!confirm(`¿${newVal ? 'Dar' : 'Quitar'} acceso de administrador a ${user.name} (${user.email})?`)) return;
+    setToggling(user.id);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ is_admin: newVal })
+      .eq('id', user.id);
+    if (error) alert(error.message);
+    else setUsers(prev => prev.map(u => u.id === user.id ? { ...u, is_admin: newVal } : u));
+    setToggling(null);
+  };
+
+  if (loading) return (
+    <div className="flex items-center justify-center py-24">
+      <Loader2 className="w-8 h-8 animate-spin text-brand-purple-400" />
+    </div>
+  );
+
+  const admins = users.filter(u => u.is_admin);
+  const others = users.filter(u => !u.is_admin);
+
+  return (
+    <div className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4 text-sm flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
+        </div>
+      )}
+
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 text-sm text-amber-800">
+        <strong>Nota:</strong> Para agregar un nuevo administrador, la persona primero debe registrarse en el sitio como usuario normal. Luego aparecerá aquí y podrás activarle el acceso.
+      </div>
+
+      {/* Admins actuales */}
+      <div>
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-green-500" /> Administradores activos ({admins.length})
+        </h2>
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          {admins.length === 0 ? (
+            <p className="text-center py-8 text-gray-400 text-sm">Sin administradores</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  {['Usuario', 'Email', 'Desde', 'Acceso'].map(h => (
+                    <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {admins.map(u => (
+                  <tr key={u.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-blue-500 to-brand-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                          {u.name?.charAt(0)?.toUpperCase() ?? '?'}
+                        </div>
+                        <span className="font-medium text-gray-900">{u.name || '—'}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-gray-500">{u.email}</td>
+                    <td className="px-5 py-4 text-gray-400 text-xs">{new Date(u.created_at).toLocaleDateString('es-CL')}</td>
+                    <td className="px-5 py-4">
+                      <button
+                        onClick={() => toggleAdmin(u)}
+                        disabled={toggling === u.id}
+                        title="Quitar acceso de administrador"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 hover:bg-red-100 hover:text-red-600 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                      >
+                        {toggling === u.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                        Admin activo
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+
+      {/* Usuarios sin acceso admin */}
+      <div>
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <ShieldOff className="w-4 h-4 text-gray-400" /> Otros usuarios ({others.length})
+        </h2>
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          {others.length === 0 ? (
+            <p className="text-center py-8 text-gray-400 text-sm">No hay otros usuarios registrados</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  {['Usuario', 'Email', 'Desde', 'Acceso'].map(h => (
+                    <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {others.map(u => (
+                  <tr key={u.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs font-bold">
+                          {u.name?.charAt(0)?.toUpperCase() ?? '?'}
+                        </div>
+                        <span className="font-medium text-gray-900">{u.name || '—'}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-gray-500">{u.email}</td>
+                    <td className="px-5 py-4 text-gray-400 text-xs">{new Date(u.created_at).toLocaleDateString('es-CL')}</td>
+                    <td className="px-5 py-4">
+                      <button
+                        onClick={() => toggleAdmin(u)}
+                        disabled={toggling === u.id}
+                        title="Dar acceso de administrador"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-600 hover:bg-brand-purple-100 hover:text-brand-purple-700 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                      >
+                        {toggling === u.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldOff className="w-3.5 h-3.5" />}
+                        Sin acceso
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 function DocUploadButton({ uploading, onChange }: { uploading: boolean; onChange: (f: File) => void }) {
   const ref = useRef<HTMLInputElement>(null);
