@@ -32,6 +32,7 @@ async function sendEmail(to: string, toName: string, subject: string, html: stri
 }
 
 serve(async (req) => {
+  const year = new Date().getFullYear();
   // CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -109,7 +110,7 @@ serve(async (req) => {
         </div>
         <div style="background: #1e3a5f; padding: 24px 32px; text-align: center; border-radius: 0 0 8px 8px;">
           <p style="color: #8aafd4; font-size: 12px; margin: 0; line-height: 1.6;">
-            © 2024 La Martillera · Remates &amp; Subastas<br/>
+            © ${year} La Martillera · Remates &amp; Subastas<br/>
             <a href="https://lamartillera.vercel.app" style="color: #c8a8e0; text-decoration: none;">lamartillera.vercel.app</a>
           </p>
         </div>
