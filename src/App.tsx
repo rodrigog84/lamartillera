@@ -35,7 +35,7 @@ function ProtectedAdmin() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { setChecking(false); return; }
       const { data: profile } = await supabase
-        .from('profiles').select('is_admin').eq('id', session.user.id).single();
+        .from('profiles').select('is_admin').eq('id', session.user.id).maybeSingle();
       setAuthed(profile?.is_admin === true);
       setChecking(false);
     });

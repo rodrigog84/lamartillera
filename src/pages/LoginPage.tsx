@@ -16,7 +16,7 @@ export default function LoginPage() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;
       const { data: profile } = await supabase
-        .from('profiles').select('is_admin').eq('id', session.user.id).single();
+        .from('profiles').select('is_admin').eq('id', session.user.id).maybeSingle();
       if (profile?.is_admin) navigate('/admin', { replace: true });
     });
   }, [navigate]);
@@ -40,7 +40,7 @@ export default function LoginPage() {
 
     // Verificar que tiene is_admin = true
     const { data: profile } = await supabase
-      .from('profiles').select('is_admin').eq('id', data.user.id).single();
+      .from('profiles').select('is_admin').eq('id', data.user.id).maybeSingle();
 
     if (profile?.is_admin) {
       navigate('/admin', { replace: true });

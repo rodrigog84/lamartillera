@@ -22,7 +22,7 @@ export default function UserLoginPage() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { setChecking(false); return; }
       const { data: profile } = await supabase
-        .from('profiles').select('is_admin').eq('id', session.user.id).single();
+        .from('profiles').select('is_admin').eq('id', session.user.id).maybeSingle();
       if (profile?.is_admin) {
         navigate('/admin', { replace: true });
       } else {
@@ -34,7 +34,7 @@ export default function UserLoginPage() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         const { data: profile } = await supabase
-          .from('profiles').select('is_admin').eq('id', session.user.id).single();
+          .from('profiles').select('is_admin').eq('id', session.user.id).maybeSingle();
         if (profile?.is_admin) {
           navigate('/admin', { replace: true });
         } else {

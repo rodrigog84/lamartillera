@@ -58,25 +58,37 @@ export async function initUserSession(): Promise<UserProfile | null> {
     return null;
   }
 
-  // Obtener perfil desde la tabla profiles
+  // Obtener perfil desde la tabla profiles (maybeSingle evita error PGRST116 si no existe fila)
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', session.user.id)
-    .single();
+    .maybeSingle();
 
+  // Si no tiene fila en profiles, crearla con datos básicos del auth
   if (!profile) {
-    localStorage.removeItem(USER_KEY);
-    return null;
+    const fallbackName = session.user.user_metadata?.full_name
+      ?? session.user.user_metadata?.name
+      ?? session.user.email?.split('@')[0]
+      ?? 'Usuario';
+    await supabase.from('profiles').upsert({
+      id: session.user.id,
+      name: fallbackName,
+      is_admin: false,
+    }, { onConflict: 'id' });
   }
 
   const user: UserProfile = {
     id: session.user.id,
-    name: profile.name,
+    name: profile?.name
+      ?? session.user.user_metadata?.full_name
+      ?? session.user.user_metadata?.name
+      ?? session.user.email?.split('@')[0]
+      ?? 'Usuario',
     email: session.user.email ?? '',
-    phone: profile.phone ?? undefined,
-    createdAt: profile.created_at,
-    isAdmin: profile.is_admin === true,
+    phone: profile?.phone ?? undefined,
+    createdAt: profile?.created_at ?? session.user.created_at,
+    isAdmin: profile?.is_admin === true,
   };
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   return user;
@@ -148,12 +160,12 @@ export async function loginUser(
   if (error) return { ok: false, error: 'Email o contraseña incorrectos.' };
   if (!data.user) return { ok: false, error: 'Error de autenticación.' };
 
-  // Obtener perfil
+  // Obtener perfil (maybeSingle evita error PGRST116 si no existe fila)
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', data.user.id)
-    .single();
+    .maybeSingle();
 
   const user: UserProfile = {
     id: data.user.id,
