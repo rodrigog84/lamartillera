@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Phone, Mail, MapPin, Instagram } from 'lucide-react';
+import { Mail, MapPin, Instagram } from 'lucide-react';
 
 function TikTokIcon() {
   return (
@@ -72,13 +72,14 @@ export default function ComingSoonPage() {
         </span>
 
         {/* Headline */}
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 max-w-3xl">
-          La plataforma de subastas
-          <br />
-          <span className="bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
-            inmobiliarias de Chile
-          </span>
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-4 max-w-3xl">
+          La plataforma de subastas de Chile
         </h1>
+        <p className="text-2xl sm:text-3xl font-semibold mb-6">
+          <span className="bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
+            inmuebles, vehículos y mucho más
+          </span>
+        </p>
 
         <p className="text-white/70 text-lg sm:text-xl max-w-xl mb-14 leading-relaxed">
           Estamos preparando algo increíble. Lanzamos en{' '}
@@ -99,13 +100,9 @@ export default function ComingSoonPage() {
 
         {/* Contact */}
         <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 text-white/70 text-sm">
-          <a href="tel:+56965589260" className="flex items-center gap-2 hover:text-white transition-colors">
-            <Phone className="w-4 h-4" />
-            +56 9 6558 9260
-          </a>
-          <a href="mailto:contacto@lamartillera.cl" className="flex items-center gap-2 hover:text-white transition-colors">
+          <a href="mailto:jlira@lamartillera.cl" className="flex items-center gap-2 hover:text-white transition-colors">
             <Mail className="w-4 h-4" />
-            contacto@lamartillera.cl
+            jlira@lamartillera.cl
           </a>
           <span className="flex items-center gap-2">
             <MapPin className="w-4 h-4" />
