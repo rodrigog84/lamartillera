@@ -58,7 +58,7 @@ export default function LoginPage() {
           <Link to="/" className="inline-flex items-center gap-1.5 text-blue-200 hover:text-white text-sm mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Volver al inicio
           </Link>
-          <img src="/logo.png" alt="La Martillera" className="h-16 w-auto mx-auto mb-4 brightness-0 invert" />
+          <img src="/logo.png" alt="La Martillera" className="h-16 w-auto mx-auto mb-4" />
           <h1 className="text-2xl font-black text-white">Panel de Administración</h1>
           <p className="text-blue-200 text-sm mt-1">Ingresa con tu cuenta de administrador</p>
         </div>

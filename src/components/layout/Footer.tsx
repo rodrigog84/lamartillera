@@ -21,7 +21,7 @@ export default function Footer() {
               <img
                 src="/logo.png"
                 alt="LaMartillera.cl"
-                className="h-16 w-auto brightness-0 invert"
+                className="h-16 w-auto"
               />
             </Link>
             <p className="text-sm leading-relaxed text-gray-400 mb-6">
