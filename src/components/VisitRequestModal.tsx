@@ -42,6 +42,10 @@ export default function VisitRequestModal({ auctionId, auctionTitle, lotNumber, 
       setError('Selecciona una fecha de visita.');
       return;
     }
+    if (!form.phone.trim()) {
+      setError('Ingresa un teléfono / WhatsApp para que podamos contactarte.');
+      return;
+    }
 
     setState('loading');
     setError('');
@@ -51,7 +55,7 @@ export default function VisitRequestModal({ auctionId, auctionTitle, lotNumber, 
         body: {
           name: form.name.trim(),
           email: form.email.trim(),
-          phone: form.phone.trim() || undefined,
+          phone: form.phone.trim(),
           message: form.message.trim() || undefined,
           auctionId,
           auctionTitle,
@@ -174,11 +178,19 @@ export default function VisitRequestModal({ auctionId, auctionTitle, lotNumber, 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Teléfono</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Teléfono / WhatsApp *</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input value={form.phone} onChange={set('phone')} className="input-field pl-9" placeholder="+56 9 …" />
+                  <input
+                    type="tel"
+                    required
+                    value={form.phone}
+                    onChange={set('phone')}
+                    className="input-field pl-9"
+                    placeholder="+56 9 …"
+                  />
                 </div>
+                <p className="text-xs text-gray-400 mt-1.5">Lo usaremos para contactarte por WhatsApp y confirmar la visita.</p>
               </div>
 
               <div>

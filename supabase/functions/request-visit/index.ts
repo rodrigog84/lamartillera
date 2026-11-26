@@ -62,8 +62,8 @@ serve(async (req) => {
       visitModality,
     } = body;
 
-    if (!name || !email || !auctionId || !auctionTitle || !visitDate || !visitTime || !visitModality) {
-      return new Response(JSON.stringify({ error: 'Faltan campos requeridos.' }), {
+    if (!name || !email || !phone || !auctionId || !auctionTitle || !visitDate || !visitTime || !visitModality) {
+      return new Response(JSON.stringify({ error: 'Faltan campos requeridos (incluye teléfono).' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -118,15 +118,16 @@ serve(async (req) => {
           <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #444;">
             <tr><td style="padding: 8px 0; font-weight: 700; color: #1e3a5f; width: 140px;">Nombre</td><td style="padding: 8px 0;">${safe.name}</td></tr>
             <tr><td style="padding: 8px 0; font-weight: 700; color: #1e3a5f;">Email</td><td style="padding: 8px 0;"><a href="mailto:${safe.email}" style="color: #4a1a6b;">${safe.email}</a></td></tr>
-            ${safe.phone ? `<tr><td style="padding: 8px 0; font-weight: 700; color: #1e3a5f;">Teléfono</td><td style="padding: 8px 0;">${safe.phone}</td></tr>` : ''}
+            <tr><td style="padding: 8px 0; font-weight: 700; color: #1e3a5f;">Teléfono / WhatsApp</td><td style="padding: 8px 0;">${safe.phone}</td></tr>
           </table>
           ${safe.message ? `
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
           <p style="font-weight: 700; color: #1e3a5f; margin: 0 0 8px;">Mensaje:</p>
           <p style="color: #555; line-height: 1.7; margin: 0; white-space: pre-wrap;">${safe.message}</p>
           ` : ''}
-          <div style="margin-top: 24px;">
-            <a href="mailto:${safe.email}" style="display: inline-block; background: linear-gradient(135deg, #1e3a5f 0%, #4a1a6b 100%); color: #fff; padding: 10px 24px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 14px;">Contactar a ${safe.name}</a>
+          <div style="margin-top: 24px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="mailto:${safe.email}" style="display: inline-block; background: linear-gradient(135deg, #1e3a5f 0%, #4a1a6b 100%); color: #fff; padding: 10px 24px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 14px;">Email a ${safe.name}</a>
+            <a href="https://wa.me/${String(phone).replace(/[^\d]/g, '')}" style="display: inline-block; background: #25D366; color: #fff; padding: 10px 24px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 14px;">WhatsApp</a>
           </div>
         </div>
         <div style="background: #1e3a5f; padding: 16px; text-align: center; border-radius: 0 0 8px 8px;">
