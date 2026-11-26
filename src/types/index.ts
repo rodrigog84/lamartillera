@@ -37,6 +37,8 @@ export interface AuctionDocument {
 export interface Auction {
   id: string;
   title: string;
+  /** Número de lote del remate (ej. "001", "A-12") */
+  lotNumber: string;
   address: string;
   commune: string;
   region: string;

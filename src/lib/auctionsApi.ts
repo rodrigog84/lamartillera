@@ -8,6 +8,7 @@ const MOCK = import.meta.env.VITE_MOCK_MODE === 'true';
 type AuctionRow = {
   id: string;
   title: string;
+  lot_number: string | null;
   address: string;
   commune: string;
   region: string;
@@ -39,6 +40,7 @@ function rowToAuction(row: AuctionRow): Auction {
   return {
     id: row.id,
     title: row.title,
+    lotNumber: row.lot_number ?? '',
     address: row.address,
     commune: row.commune,
     region: row.region,
@@ -72,6 +74,7 @@ function rowToAuction(row: AuctionRow): Auction {
 function auctionToRow(a: Omit<Auction, 'id' | 'createdAt'>) {
   return {
     title: a.title,
+    lot_number: a.lotNumber,
     address: a.address,
     commune: a.commune,
     region: a.region,

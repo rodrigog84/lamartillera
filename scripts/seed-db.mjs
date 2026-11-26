@@ -53,6 +53,7 @@ const SAMPLE_PDF = 'https://www.africau.edu/images/default/sample.pdf';
 const auctions = [
   {
     id: 'a1b2c3d4-0001-4000-8000-000000000001',
+    lot_number: '001',
     title: 'Departamento céntrico con vista panorámica',
     address: 'Av. Providencia 1234, Depto. 801', commune: 'Providencia', region: 'RM - Metropolitana',
     category: 'Inmuebles', property_type: 'Departamento', status: 'Disponible',
@@ -67,6 +68,7 @@ const auctions = [
   },
   {
     id: 'a1b2c3d4-0002-4000-8000-000000000002',
+    lot_number: '002',
     title: 'Casa familiar en tranquilo barrio residencial',
     address: 'Los Arrayanes 456', commune: 'Las Condes', region: 'RM - Metropolitana',
     category: 'Inmuebles', property_type: 'Casa', status: 'Disponible',
@@ -81,6 +83,7 @@ const auctions = [
   },
   {
     id: 'a1b2c3d4-0003-4000-8000-000000000003',
+    lot_number: '003',
     title: 'Parcela con vista al lago, ideal turismo',
     address: 'Camino Los Lagos Km 12', commune: 'Puerto Varas', region: 'X - Los Lagos',
     category: 'Inmuebles', property_type: 'Parcela', status: 'Disponible',
@@ -93,6 +96,7 @@ const auctions = [
   },
   {
     id: 'a1b2c3d4-0004-4000-8000-000000000004',
+    lot_number: '004',
     title: 'Local comercial en pleno centro histórico',
     address: 'Paseo Ahumada 321, Local 5', commune: 'Santiago', region: 'RM - Metropolitana',
     category: 'Inmuebles', property_type: 'Local Comercial', status: 'Disponible',
@@ -105,6 +109,7 @@ const auctions = [
   },
   {
     id: 'a1b2c3d4-0005-4000-8000-000000000005',
+    lot_number: '005',
     title: 'Oficina ejecutiva en torre corporativa',
     address: 'Av. El Bosque Norte 500, Of. 1201', commune: 'Las Condes', region: 'RM - Metropolitana',
     category: 'Inmuebles', property_type: 'Oficina', status: 'Próximamente',
@@ -117,6 +122,7 @@ const auctions = [
   },
   {
     id: 'a1b2c3d4-0006-4000-8000-000000000006',
+    lot_number: '006',
     title: 'Bodega industrial sector norte — ADJUDICADA',
     address: 'Av. Lo Boza 1200, Bodega C', commune: 'Pudahuel', region: 'RM - Metropolitana',
     category: 'Inmuebles', property_type: 'Bodega', status: 'Adjudicada',
@@ -130,6 +136,7 @@ const auctions = [
   },
   {
     id: 'a1b2c3d4-0007-4000-8000-000000000007',
+    lot_number: '007',
     title: 'Casa en condominio cerrado sector oriente — ADJUDICADA',
     address: 'Condominio Los Peumos, Casa 14', commune: 'La Florida', region: 'RM - Metropolitana',
     category: 'Inmuebles', property_type: 'Casa', status: 'Adjudicada',
@@ -144,6 +151,7 @@ const auctions = [
   },
   {
     id: 'a1b2c3d4-0008-4000-8000-000000000008',
+    lot_number: '008',
     title: 'Camioneta Toyota Hilux 4x4 2020',
     address: 'Depósito judicial, Av. Industrial 900', commune: 'Pudahuel', region: 'RM - Metropolitana',
     category: 'Vehículos', property_type: 'Camioneta', status: 'Disponible',
@@ -156,6 +164,7 @@ const auctions = [
   },
   {
     id: 'a1b2c3d4-0009-4000-8000-000000000009',
+    lot_number: '009',
     title: 'Automóvil Chevrolet Cruze 2019',
     address: 'Depósito judicial, Av. Industrial 900', commune: 'Pudahuel', region: 'RM - Metropolitana',
     category: 'Vehículos', property_type: 'Auto', status: 'Disponible',
@@ -168,6 +177,7 @@ const auctions = [
   },
   {
     id: 'a1b2c3d4-0010-4000-8000-000000000010',
+    lot_number: '010',
     title: 'Lote de equipamiento gastronómico completo',
     address: 'Ex restaurante, Av. Vitacura 3800', commune: 'Vitacura', region: 'RM - Metropolitana',
     category: 'Bienes Muebles', property_type: 'Lote Mixto', status: 'Disponible',
@@ -180,6 +190,7 @@ const auctions = [
   },
   {
     id: 'a1b2c3d4-0011-4000-8000-000000000011',
+    lot_number: '011',
     title: 'Equipos médicos clínica — ADJUDICADO',
     address: 'Ex Clínica Central, Av. Independencia 1027', commune: 'Independencia', region: 'RM - Metropolitana',
     category: 'Bienes Muebles', property_type: 'Lote Mixto', status: 'Adjudicada',

@@ -8,6 +8,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   // ── Inmuebles Disponibles ──
   {
     id: '1',
+    lotNumber: '001',
     title: 'Departamento céntrico con vista panorámica',
     address: 'Av. Providencia 1234, Depto. 801',
     commune: 'Providencia',
@@ -42,6 +43,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   },
   {
     id: '2',
+    lotNumber: '002',
     title: 'Casa familiar en tranquilo barrio residencial',
     address: 'Los Arrayanes 456',
     commune: 'Las Condes',
@@ -75,6 +77,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   },
   {
     id: '3',
+    lotNumber: '003',
     title: 'Parcela con vista al lago, ideal turismo',
     address: 'Camino Los Lagos Km 12',
     commune: 'Puerto Varas',
@@ -104,6 +107,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   },
   {
     id: '4',
+    lotNumber: '004',
     title: 'Local comercial en pleno centro histórico',
     address: 'Paseo Ahumada 321, Local 5',
     commune: 'Santiago',
@@ -131,6 +135,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   },
   {
     id: '5',
+    lotNumber: '005',
     title: 'Oficina ejecutiva en torre corporativa',
     address: 'Av. El Bosque Norte 500, Of. 1201',
     commune: 'Las Condes',
@@ -156,6 +161,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   },
   {
     id: '6',
+    lotNumber: '006',
     title: 'Departamento moderno con amenidades completas',
     address: 'Maipú 890, Depto. 504',
     commune: 'Valparaíso',
@@ -185,6 +191,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   // ── Inmuebles Adjudicados ──
   {
     id: 'adj-1',
+    lotNumber: '007',
     title: 'Bodega industrial sector norte — ADJUDICADA',
     address: 'Av. Lo Boza 1200, Bodega C',
     commune: 'Pudahuel',
@@ -215,6 +222,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   },
   {
     id: 'adj-2',
+    lotNumber: '008',
     title: 'Casa en condominio cerrado sector oriente — ADJUDICADA',
     address: 'Condominio Los Peumos, Casa 14',
     commune: 'La Florida',
@@ -250,6 +258,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   // ── Vehículos ──
   {
     id: '7',
+    lotNumber: '009',
     title: 'Camioneta Toyota Hilux 4x4 2020',
     address: 'Depósito judicial, Av. Industrial 900',
     commune: 'Pudahuel',
@@ -278,6 +287,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   },
   {
     id: '8',
+    lotNumber: '010',
     title: 'Automóvil Chevrolet Cruze 2019',
     address: 'Depósito judicial, Av. Industrial 900',
     commune: 'Pudahuel',
@@ -306,6 +316,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   },
   {
     id: '9',
+    lotNumber: '011',
     title: 'Excavadora Caterpillar 320D 2018',
     address: 'Faena minera, Ruta 5 Norte Km 460',
     commune: 'Copiapó',
@@ -333,6 +344,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   // ── Vehículo Adjudicado ──
   {
     id: 'adj-3',
+    lotNumber: '012',
     title: 'Camión Volvo FH 2017 — ADJUDICADO',
     address: 'Depósito judicial, Ruta 5 Sur Km 8',
     commune: 'San Bernardo',
@@ -362,6 +374,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   // ── Bienes Muebles ──
   {
     id: '10',
+    lotNumber: '013',
     title: 'Lote de equipamiento gastronómico completo',
     address: 'Ex restaurante, Av. Vitacura 3800',
     commune: 'Vitacura',
@@ -390,6 +403,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   },
   {
     id: '11',
+    lotNumber: '014',
     title: 'Mobiliario y equipos de oficina corporativa',
     address: 'Torre Costanera, Andrés Bello 2477, Of. 1500',
     commune: 'Las Condes',
@@ -418,6 +432,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   },
   {
     id: '12',
+    lotNumber: '015',
     title: 'Lote de maquinaria textil industrial',
     address: 'Ex planta textil, Ruta 68 Km 22',
     commune: 'Pudahuel',
@@ -445,6 +460,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
   // ── Bien Mueble Adjudicado ──
   {
     id: 'adj-4',
+    lotNumber: '016',
     title: 'Equipos médicos clínica — ADJUDICADO',
     address: 'Ex Clínica Central, Av. Independencia 1027',
     commune: 'Independencia',

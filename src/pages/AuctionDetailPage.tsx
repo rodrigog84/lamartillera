@@ -134,6 +134,9 @@ export default function AuctionDetailPage() {
                 )}>Remate {auction.origin ?? 'Privado'}</span>
                 {auction.featured && <span className="badge bg-brand-blue-100 text-brand-blue-700">Destacado</span>}
               </div>
+              {auction.lotNumber && (
+                <p className="text-sm font-semibold text-brand-purple-600 mb-2">Lote {auction.lotNumber}</p>
+              )}
               <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-4">{auction.title}</h1>
               <div className="flex items-center gap-2 text-gray-500 mb-6">
                 <MapPin className="w-5 h-5 text-brand-purple-400 flex-shrink-0" />

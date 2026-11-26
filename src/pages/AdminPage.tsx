@@ -19,6 +19,7 @@ type FormData = Omit<Auction, 'id' | 'createdAt'>;
 
 const EMPTY_FORM: FormData = {
   title: '',
+  lotNumber: '',
   address: '',
   commune: '',
   region: '',
@@ -59,7 +60,8 @@ export default function AdminPage() {
 
   const filtered = auctions.filter(a =>
     a.title.toLowerCase().includes(search.toLowerCase()) ||
-    a.commune.toLowerCase().includes(search.toLowerCase())
+    a.commune.toLowerCase().includes(search.toLowerCase()) ||
+    (a.lotNumber ?? '').toLowerCase().includes(search.toLowerCase())
   );
 
   const openNew = () => {
@@ -72,6 +74,7 @@ export default function AdminPage() {
   const openEdit = (a: Auction) => {
     setForm({
       title: a.title,
+      lotNumber: a.lotNumber ?? '',
       address: a.address,
       commune: a.commune,
       region: a.region,
@@ -258,7 +261,7 @@ export default function AdminPage() {
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 border-b border-gray-100">
                       <tr>
-                        {['Subasta', 'Categoría', 'Estado', 'Precio', 'Fecha', 'Acciones'].map(h => (
+                        {['Lote', 'Subasta', 'Categoría', 'Estado', 'Precio', 'Fecha', 'Acciones'].map(h => (
                           <th key={h} className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
                         ))}
                       </tr>
@@ -266,6 +269,9 @@ export default function AdminPage() {
                     <tbody className="divide-y divide-gray-50">
                       {filtered.map(a => (
                         <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-5 py-4">
+                            <span className="font-mono text-sm font-semibold text-brand-purple-700">{a.lotNumber || '—'}</span>
+                          </td>
                           <td className="px-5 py-4">
                             <p className="font-semibold text-gray-900 max-w-xs truncate">{a.title}</p>
                             <p className="text-xs text-gray-400 mt-0.5">{a.commune}, {a.region.split(' - ')[1] ?? a.region}</p>
@@ -317,9 +323,15 @@ export default function AdminPage() {
               <div>
                 <h3 className="section-title">Información básica</h3>
                 <div className="grid gap-4">
-                  <div>
-                    <label className="label">Título *</label>
-                    <input className="input" value={form.title} onChange={e => setField('title', e.target.value)} required />
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div className="sm:col-span-2">
+                      <label className="label">Título *</label>
+                      <input className="input" value={form.title} onChange={e => setField('title', e.target.value)} required />
+                    </div>
+                    <div>
+                      <label className="label">Número de Lote *</label>
+                      <input className="input" value={form.lotNumber} onChange={e => setField('lotNumber', e.target.value)} required placeholder="Ej: 001" />
+                    </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>

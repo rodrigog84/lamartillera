@@ -7,6 +7,7 @@
 CREATE TABLE IF NOT EXISTS auctions (
   id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title         TEXT NOT NULL,
+  lot_number    TEXT NOT NULL DEFAULT '',
   address       TEXT NOT NULL,
   commune       TEXT NOT NULL,
   region        TEXT NOT NULL,

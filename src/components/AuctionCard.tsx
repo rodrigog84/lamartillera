@@ -71,6 +71,11 @@ export default function AuctionCard({ auction }: Props) {
           {auction.origin ?? 'Privado'}
         </span>
 
+        {auction.lotNumber && (
+          <p className="text-xs font-semibold text-brand-purple-600 mb-1">
+            Lote {auction.lotNumber}
+          </p>
+        )}
         <h3 className="font-semibold text-gray-900 text-base mb-1 line-clamp-2 group-hover:text-brand-purple-600 transition-colors">
           {auction.title}
         </h3>

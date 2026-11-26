@@ -6,6 +6,7 @@
 CREATE TABLE IF NOT EXISTS public.auctions (
   id                      UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
   title                   TEXT        NOT NULL,
+  lot_number              TEXT        NOT NULL DEFAULT '',
   address                 TEXT        NOT NULL DEFAULT '',
   commune                 TEXT        NOT NULL DEFAULT '',
   region                  TEXT        NOT NULL DEFAULT '',
