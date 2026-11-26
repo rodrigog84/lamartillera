@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Heart, User, Phone, Mail, Save, Loader2, LogOut, CheckCircle, Edit2 } from 'lucide-react';
+import { Heart, User, Phone, Mail, Save, Loader2, LogOut, CheckCircle, Edit2, ArrowLeft, LayoutGrid } from 'lucide-react';
 import { getCurrentUser, logoutUser, updateUserProfile, UserProfile } from '../utils/userAuth';
 import { useFavorites } from '../hooks/useFavorites';
 import { useAuctions } from '../hooks/useAuctions';
@@ -28,20 +28,32 @@ function Dashboard({ user }: { user: UserProfile }) {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-blue-500 to-brand-purple-500 flex items-center justify-center text-white text-xl font-bold">
-              {user.name.charAt(0).toUpperCase()}
+        <div className="mb-8">
+          <Link to="/"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-purple-600 transition-colors mb-4">
+            <ArrowLeft className="w-4 h-4" /> Volver al inicio
+          </Link>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-blue-500 to-brand-purple-500 flex items-center justify-center text-white text-xl font-bold">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
+                <p className="text-gray-500 text-sm">{user.email}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-              <p className="text-gray-500 text-sm">{user.email}</p>
+            <div className="flex items-center gap-2">
+              <Link to="/subastas"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-purple-600 border border-brand-purple-200 rounded-xl hover:bg-brand-purple-50 transition-colors">
+                <LayoutGrid className="w-4 h-4" /> Ver remates
+              </Link>
+              <button onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-gray-800 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                <LogOut className="w-4 h-4" /> Cerrar sesión
+              </button>
             </div>
           </div>
-          <button onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-gray-800 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-            <LogOut className="w-4 h-4" /> Cerrar sesión
-          </button>
         </div>
 
         {/* Tabs */}
@@ -94,7 +106,15 @@ function FavoritesTab({ userId: _userId }: { userId: string }) {
 
   return (
     <div>
-      <p className="text-sm text-gray-500 mb-6">{favAuctions.length} subasta{favAuctions.length !== 1 ? 's' : ''} guardada{favAuctions.length !== 1 ? 's' : ''}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <p className="text-sm text-gray-500">
+          {favAuctions.length} subasta{favAuctions.length !== 1 ? 's' : ''} guardada{favAuctions.length !== 1 ? 's' : ''}
+        </p>
+        <Link to="/subastas"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-brand-purple-600 hover:text-brand-purple-700 transition-colors">
+          <LayoutGrid className="w-4 h-4" /> Explorar más remates
+        </Link>
+      </div>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {favAuctions.map(a => <AuctionCard key={a.id} auction={a} />)}
       </div>

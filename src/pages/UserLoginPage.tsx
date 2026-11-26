@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 export default function UserLoginPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const next = params.get('next') ?? '/mi-cuenta';
+  const next = params.get('next') ?? '/';
 
   const [form, setForm]       = useState({ email: '', password: '' });
   const [showPwd, setShowPwd] = useState(false);
