@@ -1,12 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Heart, User, Phone, Mail, Save, Loader2, LogOut, CheckCircle, Edit2, ArrowLeft, LayoutGrid } from 'lucide-react';
+import { Heart, User, Phone, Mail, Save, Loader2, LogOut, CheckCircle, Edit2, ArrowLeft, LayoutGrid, Calendar, Clock } from 'lucide-react';
 import { getCurrentUser, logoutUser, updateUserProfile, UserProfile } from '../utils/userAuth';
 import { useFavorites } from '../hooks/useFavorites';
 import { useAuctions } from '../hooks/useAuctions';
 import AuctionCard from '../components/AuctionCard';
+import { fetchMyVisitRequests, VisitRequest, VisitRequestStatus } from '../lib/visitRequestsApi';
+import { formatDate } from '../utils/format';
+import clsx from 'clsx';
 
-type Tab = 'favoritos' | 'datos';
+type Tab = 'favoritos' | 'visitas' | 'datos';
+
+const STATUS_LABEL: Record<VisitRequestStatus, string> = {
+  pendiente: 'Pendiente',
+  contactado: 'Contactado',
+  confirmada: 'Confirmada',
+  cancelada: 'Cancelada',
+};
+
+const STATUS_STYLE: Record<VisitRequestStatus, string> = {
+  pendiente: 'bg-amber-100 text-amber-700',
+  contactado: 'bg-blue-100 text-blue-700',
+  confirmada: 'bg-green-100 text-green-700',
+  cancelada: 'bg-gray-100 text-gray-600',
+};
 
 export default function UserDashboardPage() {
   const user = getCurrentUser();
@@ -57,9 +74,10 @@ function Dashboard({ user }: { user: UserProfile }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit mb-8">
+        <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit mb-8 flex-wrap">
           {([
             { id: 'favoritos', label: 'Mis favoritos', icon: Heart },
+            { id: 'visitas',   label: 'Mis visitas',   icon: Calendar },
             { id: 'datos',     label: 'Mis datos',     icon: User  },
           ] as { id: Tab; label: string; icon: React.ElementType }[]).map(({ id, label, icon: Icon }) => (
             <button key={id} onClick={() => setTab(id)}
@@ -73,8 +91,98 @@ function Dashboard({ user }: { user: UserProfile }) {
 
         {/* Content */}
         {tab === 'favoritos' && <FavoritesTab userId={user.id} />}
+        {tab === 'visitas'   && <MyVisitsTab />}
         {tab === 'datos'     && <ProfileTab user={user} />}
       </div>
+    </div>
+  );
+}
+
+// ── Tab Mis visitas ──
+function MyVisitsTab() {
+  const [items, setItems] = useState<VisitRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchMyVisitRequests()
+      .then(setItems)
+      .catch(e => setError((e as Error).message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-purple-400" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">{error}</p>;
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-20">
+        <div className="w-20 h-20 bg-brand-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Calendar className="w-9 h-9 text-brand-purple-300" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Aún no has solicitado visitas</h2>
+        <p className="text-gray-500 mb-6">Cuando solicites una visita a un remate, aparecerá aquí.</p>
+        <Link to="/subastas" className="px-6 py-3 bg-gradient-to-r from-brand-blue-500 to-brand-purple-500 text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity">
+          Ver remates disponibles
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-gray-500 mb-2">
+        {items.length} solicitud{items.length !== 1 ? 'es' : ''} de visita
+      </p>
+      {items.map(item => (
+        <div key={item.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+            <div className="min-w-0">
+              {item.lotNumber && (
+                <p className="text-xs font-semibold text-brand-purple-600 mb-0.5">Lote {item.lotNumber}</p>
+              )}
+              {item.auctionId ? (
+                <Link to={`/subastas/${item.auctionId}`} className="font-semibold text-gray-900 hover:text-brand-purple-600 transition-colors">
+                  {item.auctionTitle}
+                </Link>
+              ) : (
+                <p className="font-semibold text-gray-900">{item.auctionTitle}</p>
+              )}
+            </div>
+            <span className={clsx('badge text-xs', STATUS_STYLE[item.status])}>
+              {STATUS_LABEL[item.status]}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-600">
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-brand-purple-500" />
+              {formatDate(item.visitDate)}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-brand-blue-500" />
+              {item.visitTime} hrs
+            </span>
+            <span className={clsx(
+              'badge text-[11px]',
+              item.visitModality === 'Virtual' ? 'bg-brand-blue-50 text-brand-blue-700' : 'bg-brand-purple-50 text-brand-purple-700'
+            )}>
+              {item.visitModality}
+            </span>
+          </div>
+          <p className="text-xs text-gray-400 mt-3">
+            Solicitada el {new Date(item.createdAt).toLocaleString('es-CL')}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }

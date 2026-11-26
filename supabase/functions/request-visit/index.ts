@@ -1,6 +1,9 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
 const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') ?? '';
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 /** Destino temporal de pruebas para notificaciones a La Martillera */
 const ADMIN_EMAIL  = 'rodrigo.gonzalez@arnou.cl';
 const SENDER_NAME  = 'La Martillera';
@@ -60,6 +63,7 @@ serve(async (req) => {
       visitDate,
       visitTime,
       visitModality,
+      userId,
     } = body;
 
     if (!name || !email || !phone || !auctionId || !auctionTitle || !visitDate || !visitTime || !visitModality) {
@@ -74,6 +78,29 @@ serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // Persistir solicitud para cliente y administración
+    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      const { error: dbError } = await admin.from('visit_requests').insert({
+        auction_id: auctionId,
+        auction_title: auctionTitle,
+        lot_number: lotNumber || null,
+        user_id: userId || null,
+        name: String(name).trim(),
+        email: String(email).trim().toLowerCase(),
+        phone: String(phone).trim(),
+        message: message ? String(message).trim() : null,
+        visit_date: visitDate,
+        visit_time: visitTime,
+        visit_modality: visitModality,
+        status: 'pendiente',
+      });
+      if (dbError) {
+        console.error('visit_requests insert error', dbError);
+        throw new Error(`No se pudo guardar la solicitud: ${dbError.message}`);
+      }
     }
 
     const safe = {

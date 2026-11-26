@@ -75,3 +75,8 @@ CREATE POLICY "Admin puede subir archivos"
 CREATE POLICY "Admin puede eliminar archivos"
   ON storage.objects FOR DELETE
   USING (bucket_id = 'auction-files' AND auth.role() = 'authenticated');
+
+-- ============================================================
+-- Solicitudes de visita
+-- ============================================================
+-- Ver migración: supabase/migrations/20261126_006_visit_requests.sql

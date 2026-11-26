@@ -54,7 +54,7 @@ export default function VisitRequestModal({ auctionId, auctionTitle, lotNumber, 
       const { error: fnError } = await supabase.functions.invoke('request-visit', {
         body: {
           name: form.name.trim(),
-          email: form.email.trim(),
+          email: form.email.trim().toLowerCase(),
           phone: form.phone.trim(),
           message: form.message.trim() || undefined,
           auctionId,
@@ -63,6 +63,7 @@ export default function VisitRequestModal({ auctionId, auctionTitle, lotNumber, 
           visitDate: visit.date,
           visitTime: visit.time,
           visitModality: visit.modality,
+          userId: current?.id || undefined,
         },
       });
 

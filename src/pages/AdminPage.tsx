@@ -3,19 +3,39 @@ import { useNavigate } from 'react-router-dom';
 import {
   Plus, Edit2, Trash2, X, Save, LogOut, Search,
   LayoutGrid, Upload, Loader2, AlertCircle, RefreshCw,
-  Users, ShieldCheck, ShieldOff,
+  Users, ShieldCheck, ShieldOff, Calendar, Clock, Mail, Phone,
 } from 'lucide-react';
 import { useAuctions } from '../hooks/useAuctions';
 import { createAuction, updateAuction, deleteAuction } from '../lib/auctionsApi';
 import { uploadFile } from '../lib/storageApi';
 import { supabase } from '../lib/supabase';
 import { Auction, AuctionCategory, AuctionOrigin, AuctionStatus, AuctionVisit, Currency, PropertyType, VisitModality } from '../types';
-import { REGIONS, AUCTION_CATEGORIES, CATEGORY_PROPERTY_TYPES } from '../utils/format';
+import { REGIONS, AUCTION_CATEGORIES, CATEGORY_PROPERTY_TYPES, formatDate } from '../utils/format';
+import {
+  fetchAllVisitRequests,
+  updateVisitRequestStatus,
+  VisitRequest,
+  VisitRequestStatus,
+} from '../lib/visitRequestsApi';
 
 const AUCTION_ORIGINS: AuctionOrigin[] = ['Privado', 'Judicial', 'Liquidación Concursal'];
 import clsx from 'clsx';
 
 type FormData = Omit<Auction, 'id' | 'createdAt'>;
+
+const VISIT_STATUS_LABEL: Record<VisitRequestStatus, string> = {
+  pendiente: 'Pendiente',
+  contactado: 'Contactado',
+  confirmada: 'Confirmada',
+  cancelada: 'Cancelada',
+};
+
+const VISIT_STATUS_STYLE: Record<VisitRequestStatus, string> = {
+  pendiente: 'bg-amber-100 text-amber-700',
+  contactado: 'bg-blue-100 text-blue-700',
+  confirmada: 'bg-green-100 text-green-700',
+  cancelada: 'bg-gray-100 text-gray-600',
+};
 
 const EMPTY_FORM: FormData = {
   title: '',
@@ -44,7 +64,7 @@ const EMPTY_FORM: FormData = {
   documents: {},
 };
 
-type Tab = 'subastas' | 'administradores';
+type Tab = 'subastas' | 'visitas' | 'administradores';
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -229,6 +249,7 @@ export default function AdminPage() {
           <div className="flex gap-1">
             {([
               { id: 'subastas', label: 'Subastas', icon: LayoutGrid },
+              { id: 'visitas', label: 'Visitas', icon: Calendar },
               { id: 'administradores', label: 'Administradores', icon: Users },
             ] as { id: Tab; label: string; icon: React.ElementType }[]).map(({ id, label, icon: Icon }) => (
               <button
@@ -317,6 +338,9 @@ export default function AdminPage() {
             </div>
           )}
         </>)}
+
+        {/* ── Tab: Visitas ── */}
+        {activeTab === 'visitas' && <AdminVisitsTab />}
 
         {/* ── Tab: Administradores ── */}
         {activeTab === 'administradores' && <AdminUsersTab />}
@@ -581,6 +605,198 @@ export default function AdminPage() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Admin Visits Tab ─────────────────────────────────────────────────────────
+function AdminVisitsTab() {
+  const [items, setItems] = useState<VisitRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      setItems(await fetchAllVisitRequests());
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const filtered = items.filter(i => {
+    const q = search.toLowerCase();
+    return (
+      i.auctionTitle.toLowerCase().includes(q) ||
+      i.name.toLowerCase().includes(q) ||
+      i.email.toLowerCase().includes(q) ||
+      i.phone.toLowerCase().includes(q) ||
+      (i.lotNumber ?? '').toLowerCase().includes(q)
+    );
+  });
+
+  const grouped = filtered.reduce<Record<string, VisitRequest[]>>((acc, item) => {
+    const key = item.auctionId ?? `title:${item.auctionTitle}`;
+    (acc[key] ??= []).push(item);
+    return acc;
+  }, {});
+
+  const handleStatus = async (id: string, status: VisitRequestStatus) => {
+    setUpdatingId(id);
+    try {
+      await updateVisitRequestStatus(id, status);
+      setItems(prev => prev.map(i => (i.id === id ? { ...i, status } : i)));
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-purple-400" />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">Interesados en visitas</h2>
+          <p className="text-sm text-gray-500">{items.length} solicitud{items.length !== 1 ? 'es' : ''} en total</p>
+        </div>
+        <button onClick={load} className="p-2.5 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors" title="Actualizar">
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="relative max-w-md mb-6">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+        <input
+          type="text"
+          placeholder="Buscar por remate, nombre, email o teléfono…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple-400"
+        />
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4 mb-6 text-sm flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />{error}
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
+        <div className="bg-white rounded-2xl shadow-sm text-center py-16">
+          <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-400">No hay solicitudes de visita{search ? ' con ese filtro' : ' todavía'}.</p>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {Object.entries(grouped).map(([key, requests]) => {
+            const first = requests[0];
+            return (
+              <div key={key} className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+                <div className="px-5 py-4 border-b border-gray-100 bg-gray-50 flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    {first.lotNumber && (
+                      <p className="text-xs font-semibold text-brand-purple-600">Lote {first.lotNumber}</p>
+                    )}
+                    <h3 className="font-bold text-gray-900">{first.auctionTitle}</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {requests.length} interesado{requests.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  {first.auctionId && (
+                    <a
+                      href={`/subastas/${first.auctionId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-brand-purple-600 hover:underline"
+                    >
+                      Ver remate
+                    </a>
+                  )}
+                </div>
+                <div className="divide-y divide-gray-50">
+                  {requests.map(r => (
+                    <div key={r.id} className="px-5 py-4 grid lg:grid-cols-[1.2fr_1fr_auto] gap-4 items-start">
+                      <div>
+                        <p className="font-semibold text-gray-900">{r.name}</p>
+                        <div className="mt-1.5 space-y-1 text-sm text-gray-600">
+                          <p className="flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5 text-gray-400" />
+                            <a href={`mailto:${r.email}`} className="hover:text-brand-purple-600">{r.email}</a>
+                          </p>
+                          <p className="flex items-center gap-1.5">
+                            <Phone className="w-3.5 h-3.5 text-gray-400" />
+                            <a
+                              href={`https://wa.me/${r.phone.replace(/[^\d]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:text-green-600"
+                            >
+                              {r.phone}
+                            </a>
+                          </p>
+                        </div>
+                        {r.message && (
+                          <p className="mt-2 text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2">{r.message}</p>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-700 space-y-1.5">
+                        <p className="flex items-center gap-1.5">
+                          <Calendar className="w-4 h-4 text-brand-purple-500" />
+                          {formatDate(r.visitDate)}
+                        </p>
+                        <p className="flex items-center gap-1.5">
+                          <Clock className="w-4 h-4 text-brand-blue-500" />
+                          {r.visitTime} hrs
+                        </p>
+                        <span className={clsx(
+                          'inline-block badge text-[11px]',
+                          r.visitModality === 'Virtual' ? 'bg-brand-blue-50 text-brand-blue-700' : 'bg-brand-purple-50 text-brand-purple-700'
+                        )}>
+                          {r.visitModality}
+                        </span>
+                        <p className="text-xs text-gray-400 pt-1">
+                          Solicitada: {new Date(r.createdAt).toLocaleString('es-CL')}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-stretch gap-2 min-w-[140px]">
+                        <span className={clsx('badge text-xs justify-center', VISIT_STATUS_STYLE[r.status])}>
+                          {VISIT_STATUS_LABEL[r.status]}
+                        </span>
+                        <select
+                          className="input text-xs py-2"
+                          value={r.status}
+                          disabled={updatingId === r.id}
+                          onChange={e => handleStatus(r.id, e.target.value as VisitRequestStatus)}
+                        >
+                          {(Object.keys(VISIT_STATUS_LABEL) as VisitRequestStatus[]).map(s => (
+                            <option key={s} value={s}>{VISIT_STATUS_LABEL[s]}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
