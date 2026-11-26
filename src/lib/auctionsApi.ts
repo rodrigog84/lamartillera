@@ -26,7 +26,7 @@ type AuctionRow = {
   bathrooms: number | null;
   parking_spaces: number | null;
   occupation: 'Desocupada' | 'Ocupada' | 'Arrendada';
-  origin: AuctionOrigin;
+  origin: string;
   featured: boolean;
   external_registration_url: string;
   doc_bases: string | null;
@@ -37,6 +37,12 @@ type AuctionRow = {
   visits: AuctionVisit[] | null;
   created_at: string;
 };
+
+function normalizeOrigin(origin: string | null | undefined): AuctionOrigin {
+  if (origin === 'Concursal' || origin === 'Liquidación Concursal') return 'Liquidación Concursal';
+  if (origin === 'Judicial') return 'Judicial';
+  return 'Privado';
+}
 
 function rowToAuction(row: AuctionRow): Auction {
   return {
@@ -60,7 +66,7 @@ function rowToAuction(row: AuctionRow): Auction {
     bathrooms: row.bathrooms ?? undefined,
     parkingSpaces: row.parking_spaces ?? undefined,
     occupation: row.occupation,
-    origin: row.origin === 'Concursal' ? 'Liquidación Concursal' : row.origin,
+    origin: normalizeOrigin(row.origin),
     featured: row.featured,
     externalRegistrationUrl: row.external_registration_url,
     visits: Array.isArray(row.visits) ? row.visits : [],
