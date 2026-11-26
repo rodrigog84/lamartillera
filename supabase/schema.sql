@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS auctions (
   external_registration_url TEXT NOT NULL DEFAULT '',
   -- Documentos legales (URLs a archivos en Storage)
   doc_bases     TEXT,
+  doc_bases_especificas TEXT,
   doc_cdv       TEXT,
   doc_cav       TEXT,
   doc_gravamenes TEXT,

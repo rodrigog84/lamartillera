@@ -28,7 +28,8 @@ export type AuctionOrigin = 'Privado' | 'Judicial' | 'Concursal';
 export type Currency = 'CLP' | 'UF';
 
 export interface AuctionDocument {
-  basesDelRemate?: string;
+  basesGenerales?: string;
+  basesEspecificas?: string;
   cdv?: string;
   cav?: string;
   gravamenes?: string;

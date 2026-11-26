@@ -58,10 +58,11 @@ export default function AuctionDetailPage() {
   const nextImg = () => setImgIndex(i => (i + 1) % auction.images.length);
 
   const DOC_LIST = [
-    { key: 'basesDelRemate' as const, label: 'Bases del Remate' },
-    { key: 'cdv'            as const, label: 'Certificado de Dominio Vigente (CDV)' },
-    { key: 'cav'            as const, label: 'Certificado de Anotaciones Vigentes (CAV)' },
-    { key: 'gravamenes'     as const, label: 'Impuesto / Gravámenes' },
+    { key: 'basesGenerales'   as const, label: 'Bases Generales' },
+    { key: 'basesEspecificas' as const, label: 'Bases Específicas' },
+    { key: 'cdv'              as const, label: 'Certificado de Dominio Vigente (CDV)' },
+    { key: 'cav'              as const, label: 'Certificado de Anotaciones Vigentes (CAV)' },
+    { key: 'gravamenes'       as const, label: 'Impuesto / Gravámenes' },
   ];
   const hasDocuments = DOC_LIST.some(d => !!docs[d.key]);
 

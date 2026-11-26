@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS public.auctions (
   featured                BOOLEAN     NOT NULL DEFAULT FALSE,
   external_registration_url TEXT      DEFAULT '',
   doc_bases               TEXT,
+  doc_bases_especificas   TEXT,
   doc_cdv                 TEXT,
   doc_cav                 TEXT,
   doc_gravamenes          TEXT,

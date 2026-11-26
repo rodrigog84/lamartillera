@@ -191,7 +191,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { Icon: Search,       title: 'Búsqueda inteligente',    desc: 'Filtra por categoría, región, precio y fecha.', color: 'bg-brand-blue-50 text-brand-blue-500' },
-              { Icon: Shield,       title: 'Documentación verificada', desc: 'Bases del remate, CDV, CAV y gravámenes disponibles en cada ficha.', color: 'bg-brand-purple-50 text-brand-purple-500' },
+              { Icon: Shield,       title: 'Documentación verificada', desc: 'Bases generales y específicas, CDV, CAV y gravámenes disponibles en cada ficha.', color: 'bg-brand-purple-50 text-brand-purple-500' },
               { Icon: TrendingUp,   title: 'Oportunidades únicas',     desc: 'Bienes bajo precio de mercado en todo el territorio nacional.', color: 'bg-green-50 text-green-600' },
               { Icon: Users,        title: 'Comunidad activa',         desc: 'Miles de compradores e inversores registrados.', color: 'bg-amber-50 text-amber-600' },
               { Icon: CheckCircle,  title: 'Proceso simple',           desc: 'Te guiamos desde la búsqueda hasta la adjudicación.', color: 'bg-rose-50 text-rose-500' },

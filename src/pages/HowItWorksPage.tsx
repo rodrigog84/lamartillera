@@ -19,7 +19,7 @@ const STEPS = [
     num: '02',
     Icon: FileText,
     title: 'Revisa la documentación legal',
-    desc: 'Descarga las Bases del Remate, el Certificado de Dominio Vigente (CDV), el Certificado de Anotaciones Vigentes (CAV) y los gravámenes. Toda la información legal está disponible antes de inscribirte.',
+    desc: 'Descarga las Bases Generales y Específicas, el Certificado de Dominio Vigente (CDV), el Certificado de Anotaciones Vigentes (CAV) y los gravámenes. Toda la información legal está disponible antes de inscribirte.',
     color: 'from-brand-purple-500 to-brand-purple-600',
     bg: 'bg-brand-purple-50',
     accent: 'text-brand-purple-600',
@@ -60,11 +60,11 @@ const FAQS = [
   },
   {
     q: '¿Para qué sirve la garantía?',
-    a: 'La garantía es un depósito previo que acredita tu seriedad como postor. Su monto está fijado en las Bases del Remate. Si no resultás adjudicado, te es devuelta. Si te adjudicás y no pagas el saldo, la pierdes.',
+    a: 'La garantía es un depósito previo que acredita tu seriedad como postor. Su monto está fijado en las Bases del Remate (generales y específicas). Si no resultás adjudicado, te es devuelta. Si te adjudicás y no pagas el saldo, la pierdes.',
   },
   {
     q: '¿Qué documentos debo revisar antes de postular?',
-    a: 'Siempre revisa las Bases del Remate (condiciones del proceso), el CDV (titularidad vigente), el CAV (hipotecas, prohibiciones, embargos) y el informe de gravámenes. Todos disponibles en la ficha de cada bien.',
+    a: 'Siempre revisa las Bases Generales y Específicas (condiciones del proceso), el CDV (titularidad vigente), el CAV (hipotecas, prohibiciones, embargos) y el informe de gravámenes. Todos disponibles en la ficha de cada bien.',
   },
   {
     q: '¿Puedo visitar el bien antes del remate?',

@@ -63,7 +63,7 @@ const auctions = [
     surface: 85, bedrooms: 3, bathrooms: 2, parking_spaces: 1,
     occupation: 'Desocupada', origin: 'Privado', featured: true,
     external_registration_url: 'https://lamartillera.cl/registro',
-    doc_bases: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF, doc_gravamenes: SAMPLE_PDF,
+    doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF, doc_gravamenes: SAMPLE_PDF,
     created_at: '2026-06-01T10:00:00Z',
   },
   {
@@ -78,7 +78,7 @@ const auctions = [
     surface: 180, bedrooms: 4, bathrooms: 3, parking_spaces: 2,
     occupation: 'Desocupada', origin: 'Privado', featured: true,
     external_registration_url: 'https://lamartillera.cl/registro',
-    doc_bases: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF,
+    doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF,
     created_at: '2026-06-02T10:00:00Z',
   },
   {
@@ -91,7 +91,7 @@ const auctions = [
     images: ['https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80','https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80'],
     description: 'Hermosa parcela de 5.000 m² con vista directa al lago Llanquihue y el volcán Osorno.',
     surface: 5000, occupation: 'Desocupada', origin: 'Privado', featured: true,
-    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF,
+    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
     created_at: '2026-06-03T10:00:00Z',
   },
   {
@@ -104,7 +104,7 @@ const auctions = [
     images: ['https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&q=80'],
     description: 'Local comercial de 120 m² en pleno Paseo Ahumada, sector de alto tráfico peatonal.',
     surface: 120, occupation: 'Arrendada', origin: 'Judicial', featured: false,
-    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF,
+    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
     created_at: '2026-06-04T10:00:00Z',
   },
   {
@@ -131,7 +131,7 @@ const auctions = [
     description: 'Bodega industrial de 800 m² con altura libre de 8 m. Subasta adjudicada.',
     surface: 800, occupation: 'Desocupada', origin: 'Judicial', featured: false,
     external_registration_url: 'https://lamartillera.cl/registro',
-    doc_bases: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF, doc_gravamenes: SAMPLE_PDF,
+    doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF, doc_gravamenes: SAMPLE_PDF,
     created_at: '2026-05-10T10:00:00Z',
   },
   {
@@ -146,7 +146,7 @@ const auctions = [
     surface: 110, bedrooms: 3, bathrooms: 2, parking_spaces: 2,
     occupation: 'Desocupada', origin: 'Judicial', featured: false,
     external_registration_url: 'https://lamartillera.cl/registro',
-    doc_bases: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF,
+    doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF,
     created_at: '2026-04-20T10:00:00Z',
   },
   {
@@ -159,7 +159,7 @@ const auctions = [
     images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80','https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&q=80'],
     description: 'Camioneta Toyota Hilux 4x4 doble cabina, año 2020, motor 2.8 diésel, 95.000 km.',
     surface: 0, occupation: 'Desocupada', origin: 'Judicial', featured: true,
-    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF,
+    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
     created_at: '2026-06-10T10:00:00Z',
   },
   {
@@ -172,7 +172,7 @@ const auctions = [
     images: ['https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80','https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=800&q=80'],
     description: 'Chevrolet Cruze LTZ 2019, motor 1.4 turbo, 68.000 km. Color gris oscuro.',
     surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: false,
-    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF,
+    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
     created_at: '2026-06-11T10:00:00Z',
   },
   {
@@ -185,7 +185,7 @@ const auctions = [
     images: ['https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80','https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800&q=80'],
     description: 'Lote completo de equipamiento para restaurante: cocinas industriales, refrigeradores, vajilla.',
     surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: true,
-    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF,
+    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
     created_at: '2026-06-13T10:00:00Z',
   },
   {
@@ -198,7 +198,7 @@ const auctions = [
     images: ['https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=800&q=80'],
     description: 'Lote de equipos médicos: ecógrafos, camas hospitalarias, monitores. Adjudicado.',
     surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: false,
-    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF,
+    external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
     created_at: '2026-04-10T10:00:00Z',
   },
 ];

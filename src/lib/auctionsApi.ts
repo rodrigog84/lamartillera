@@ -30,6 +30,7 @@ type AuctionRow = {
   featured: boolean;
   external_registration_url: string;
   doc_bases: string | null;
+  doc_bases_especificas: string | null;
   doc_cdv: string | null;
   doc_cav: string | null;
   doc_gravamenes: string | null;
@@ -62,7 +63,8 @@ function rowToAuction(row: AuctionRow): Auction {
     featured: row.featured,
     externalRegistrationUrl: row.external_registration_url,
     documents: {
-      basesDelRemate: row.doc_bases ?? undefined,
+      basesGenerales: row.doc_bases ?? undefined,
+      basesEspecificas: row.doc_bases_especificas ?? undefined,
       cdv: row.doc_cdv ?? undefined,
       cav: row.doc_cav ?? undefined,
       gravamenes: row.doc_gravamenes ?? undefined,
@@ -95,7 +97,8 @@ function auctionToRow(a: Omit<Auction, 'id' | 'createdAt'>) {
     origin: a.origin,
     featured: a.featured,
     external_registration_url: a.externalRegistrationUrl,
-    doc_bases: a.documents?.basesDelRemate ?? null,
+    doc_bases: a.documents?.basesGenerales ?? null,
+    doc_bases_especificas: a.documents?.basesEspecificas ?? null,
     doc_cdv: a.documents?.cdv ?? null,
     doc_cav: a.documents?.cav ?? null,
     doc_gravamenes: a.documents?.gravamenes ?? null,

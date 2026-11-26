@@ -177,10 +177,11 @@ export default function AdminPage() {
   const availableTypes = CATEGORY_PROPERTY_TYPES[form.category ?? 'Inmuebles'];
 
   const DOC_FIELDS: { key: keyof NonNullable<FormData['documents']>; label: string }[] = [
-    { key: 'basesDelRemate', label: 'Bases del Remate' },
-    { key: 'cdv',            label: 'CDV' },
-    { key: 'cav',            label: 'CAV' },
-    { key: 'gravamenes',     label: 'Gravámenes' },
+    { key: 'basesGenerales',   label: 'Bases Generales' },
+    { key: 'basesEspecificas', label: 'Bases Específicas' },
+    { key: 'cdv',              label: 'CDV' },
+    { key: 'cav',              label: 'CAV' },
+    { key: 'gravamenes',       label: 'Gravámenes' },
   ];
 
   return (

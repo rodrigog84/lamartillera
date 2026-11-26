@@ -34,7 +34,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
       cdv: SAMPLE_PDF,
       cav: SAMPLE_PDF,
       gravamenes: SAMPLE_PDF,
@@ -69,7 +69,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
       cdv: SAMPLE_PDF,
       cav: SAMPLE_PDF,
     },
@@ -100,7 +100,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
       cdv: SAMPLE_PDF,
     },
     createdAt: '2026-06-03T10:00:00Z',
@@ -129,7 +129,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
     createdAt: '2026-06-04T10:00:00Z',
   },
@@ -213,7 +213,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
       cdv: SAMPLE_PDF,
       cav: SAMPLE_PDF,
       gravamenes: SAMPLE_PDF,
@@ -248,7 +248,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
       cdv: SAMPLE_PDF,
       cav: SAMPLE_PDF,
     },
@@ -281,7 +281,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
     createdAt: '2026-06-10T10:00:00Z',
   },
@@ -310,7 +310,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
     createdAt: '2026-06-11T10:00:00Z',
   },
@@ -366,7 +366,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
     createdAt: '2026-05-15T10:00:00Z',
   },
@@ -397,7 +397,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
     createdAt: '2026-06-13T10:00:00Z',
   },
@@ -426,7 +426,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
     createdAt: '2026-06-14T10:00:00Z',
   },
@@ -482,7 +482,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {
-      basesDelRemate: SAMPLE_PDF,
+      basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
     createdAt: '2026-04-10T10:00:00Z',
   },
