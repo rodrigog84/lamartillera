@@ -29,6 +29,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     occupation: 'Desocupada', origin: 'Privado', featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF, cdv: SAMPLE_PDF, cav: SAMPLE_PDF, gravamenes: SAMPLE_PDF },
+    visits: [{ date: '2027-03-10', time: '11:00', modality: 'Presencial' }, { date: '2027-03-12', time: '16:30', modality: 'Virtual' }],
     createdAt: '2026-06-01T10:00:00Z',
   },
   {
@@ -54,6 +55,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     occupation: 'Desocupada', origin: 'Privado', featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF, cdv: SAMPLE_PDF, cav: SAMPLE_PDF },
+    visits: [],
     createdAt: '2026-06-02T10:00:00Z',
   },
   {
@@ -78,6 +80,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     surface: 5000, occupation: 'Desocupada', origin: 'Privado', featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF, cdv: SAMPLE_PDF },
+    visits: [],
     createdAt: '2026-06-03T10:00:00Z',
   },
   {
@@ -99,6 +102,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     surface: 120, occupation: 'Arrendada', origin: 'Judicial', featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF },
+    visits: [],
     createdAt: '2026-06-04T10:00:00Z',
   },
   {
@@ -120,6 +124,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     surface: 65, occupation: 'Desocupada', origin: 'Privado', featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {},
+    visits: [],
     createdAt: '2026-06-05T10:00:00Z',
   },
   // ── Inmuebles Adjudicados ──
@@ -140,6 +145,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     surface: 800, occupation: 'Desocupada', origin: 'Judicial', featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF, cdv: SAMPLE_PDF, cav: SAMPLE_PDF, gravamenes: SAMPLE_PDF },
+    visits: [],
     createdAt: '2026-05-10T10:00:00Z',
   },
   {
@@ -163,6 +169,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     occupation: 'Desocupada', origin: 'Judicial', featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF, cdv: SAMPLE_PDF, cav: SAMPLE_PDF },
+    visits: [],
     createdAt: '2026-04-20T10:00:00Z',
   },
   // ── Vehículos ──
@@ -186,6 +193,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     surface: 0, occupation: 'Desocupada', origin: 'Judicial', featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF },
+    visits: [],
     createdAt: '2026-06-10T10:00:00Z',
   },
   {
@@ -208,6 +216,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF },
+    visits: [],
     createdAt: '2026-06-11T10:00:00Z',
   },
   // ── Bienes Muebles ──
@@ -231,6 +240,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF },
+    visits: [],
     createdAt: '2026-06-13T10:00:00Z',
   },
   {
@@ -250,13 +260,14 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF },
+    visits: [],
     createdAt: '2026-04-10T10:00:00Z',
   },
 ];
 
 // ── LocalStorage helpers (solo mock mode) ──
 const STORAGE_KEY = 'lamartillera_auctions';
-const STORAGE_VERSION = '5';
+const STORAGE_VERSION = '6';
 
 export function getMockAuctions(): Auction[] {
   try {

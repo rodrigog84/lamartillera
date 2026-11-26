@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Auction, AuctionCategory, AuctionOrigin, AuctionStatus, Currency, PropertyType } from '../types';
+import { Auction, AuctionCategory, AuctionOrigin, AuctionStatus, AuctionVisit, Currency, PropertyType } from '../types';
 import { getMockAuctions, saveMockAuctions } from '../data/mockAuctions';
 
 const MOCK = import.meta.env.VITE_MOCK_MODE === 'true';
@@ -34,6 +34,7 @@ type AuctionRow = {
   doc_cdv: string | null;
   doc_cav: string | null;
   doc_gravamenes: string | null;
+  visits: AuctionVisit[] | null;
   created_at: string;
 };
 
@@ -62,6 +63,7 @@ function rowToAuction(row: AuctionRow): Auction {
     origin: row.origin,
     featured: row.featured,
     externalRegistrationUrl: row.external_registration_url,
+    visits: Array.isArray(row.visits) ? row.visits : [],
     documents: {
       basesGenerales: row.doc_bases ?? undefined,
       basesEspecificas: row.doc_bases_especificas ?? undefined,
@@ -102,6 +104,7 @@ function auctionToRow(a: Omit<Auction, 'id' | 'createdAt'>) {
     doc_cdv: a.documents?.cdv ?? null,
     doc_cav: a.documents?.cav ?? null,
     doc_gravamenes: a.documents?.gravamenes ?? null,
+    visits: a.visits ?? [],
   };
 }
 

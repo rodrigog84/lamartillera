@@ -9,7 +9,7 @@ import { useAuctions } from '../hooks/useAuctions';
 import { createAuction, updateAuction, deleteAuction } from '../lib/auctionsApi';
 import { uploadFile } from '../lib/storageApi';
 import { supabase } from '../lib/supabase';
-import { Auction, AuctionCategory, AuctionOrigin, AuctionStatus, Currency, PropertyType } from '../types';
+import { Auction, AuctionCategory, AuctionOrigin, AuctionStatus, AuctionVisit, Currency, PropertyType, VisitModality } from '../types';
 import { REGIONS, AUCTION_CATEGORIES, CATEGORY_PROPERTY_TYPES } from '../utils/format';
 
 const AUCTION_ORIGINS: AuctionOrigin[] = ['Privado', 'Judicial', 'Concursal'];
@@ -40,6 +40,7 @@ const EMPTY_FORM: FormData = {
   origin: 'Privado',
   featured: false,
   externalRegistrationUrl: '',
+  visits: [],
   documents: {},
 };
 
@@ -95,6 +96,7 @@ export default function AdminPage() {
       origin: a.origin ?? 'Privado',
       featured: a.featured,
       externalRegistrationUrl: a.externalRegistrationUrl,
+      visits: (a.visits ?? []).map(v => ({ ...v })),
       documents: { ...a.documents },
     });
     setEditingId(a.id);
@@ -175,6 +177,19 @@ export default function AdminPage() {
     setField('images', form.images.filter((_, i) => i !== idx));
 
   const availableTypes = CATEGORY_PROPERTY_TYPES[form.category ?? 'Inmuebles'];
+
+  const addVisit = () => {
+    const visit: AuctionVisit = { date: '', time: '10:00', modality: 'Presencial' };
+    setField('visits', [...form.visits, visit]);
+  };
+
+  const updateVisit = (index: number, patch: Partial<AuctionVisit>) => {
+    setField('visits', form.visits.map((v, i) => (i === index ? { ...v, ...patch } : v)));
+  };
+
+  const removeVisit = (index: number) => {
+    setField('visits', form.visits.filter((_, i) => i !== index));
+  };
 
   const DOC_FIELDS: { key: keyof NonNullable<FormData['documents']>; label: string }[] = [
     { key: 'basesGenerales',   label: 'Bases Generales' },
@@ -419,6 +434,52 @@ export default function AdminPage() {
                     </select>
                   </div>
                 </div>
+              </div>
+
+              {/* Visits */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="section-title mb-0">Visitas al bien</h3>
+                  <button type="button" onClick={addVisit}
+                    className="flex items-center gap-1.5 text-sm font-medium text-brand-purple-600 hover:text-brand-purple-700 px-3 py-1.5 rounded-lg hover:bg-brand-purple-50 transition-colors">
+                    <Plus className="w-4 h-4" /> Agregar visita
+                  </button>
+                </div>
+                {form.visits.length === 0 ? (
+                  <p className="text-sm text-gray-400 bg-gray-50 rounded-xl px-4 py-3">
+                    Sin visitas programadas. Puedes agregar una o varias con fecha, hora y modalidad.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {form.visits.map((visit, idx) => (
+                      <div key={idx} className="grid sm:grid-cols-[1fr_1fr_1fr_auto] gap-3 items-end p-3 border border-gray-200 rounded-xl bg-gray-50/50">
+                        <div>
+                          <label className="label">Fecha *</label>
+                          <input type="date" className="input" required value={visit.date}
+                            onChange={e => updateVisit(idx, { date: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="label">Hora *</label>
+                          <input type="time" className="input" required value={visit.time}
+                            onChange={e => updateVisit(idx, { time: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="label">Modalidad *</label>
+                          <select className="input" value={visit.modality}
+                            onChange={e => updateVisit(idx, { modality: e.target.value as VisitModality })}>
+                            <option value="Presencial">Presencial</option>
+                            <option value="Virtual">Virtual</option>
+                          </select>
+                        </div>
+                        <button type="button" onClick={() => removeVisit(idx)}
+                          className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors mb-0.5"
+                          title="Quitar visita">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Characteristics */}

@@ -64,6 +64,7 @@ const auctions = [
     occupation: 'Desocupada', origin: 'Privado', featured: true,
     external_registration_url: 'https://lamartillera.cl/registro',
     doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF, doc_gravamenes: SAMPLE_PDF,
+    visits: [{ date: '2027-03-10', time: '11:00', modality: 'Presencial' }, { date: '2027-03-12', time: '16:30', modality: 'Virtual' }],
     created_at: '2026-06-01T10:00:00Z',
   },
   {
@@ -79,6 +80,7 @@ const auctions = [
     occupation: 'Desocupada', origin: 'Privado', featured: true,
     external_registration_url: 'https://lamartillera.cl/registro',
     doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF,
+    visits: [],
     created_at: '2026-06-02T10:00:00Z',
   },
   {
@@ -92,6 +94,7 @@ const auctions = [
     description: 'Hermosa parcela de 5.000 m² con vista directa al lago Llanquihue y el volcán Osorno.',
     surface: 5000, occupation: 'Desocupada', origin: 'Privado', featured: true,
     external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
+    visits: [],
     created_at: '2026-06-03T10:00:00Z',
   },
   {
@@ -105,6 +108,7 @@ const auctions = [
     description: 'Local comercial de 120 m² en pleno Paseo Ahumada, sector de alto tráfico peatonal.',
     surface: 120, occupation: 'Arrendada', origin: 'Judicial', featured: false,
     external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
+    visits: [],
     created_at: '2026-06-04T10:00:00Z',
   },
   {
@@ -118,6 +122,7 @@ const auctions = [
     description: 'Moderna oficina de 65 m² en emblemática torre del sector financiero.',
     surface: 65, occupation: 'Desocupada', origin: 'Privado', featured: false,
     external_registration_url: 'https://lamartillera.cl/registro',
+    visits: [],
     created_at: '2026-06-05T10:00:00Z',
   },
   {
@@ -132,6 +137,7 @@ const auctions = [
     surface: 800, occupation: 'Desocupada', origin: 'Judicial', featured: false,
     external_registration_url: 'https://lamartillera.cl/registro',
     doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF, doc_gravamenes: SAMPLE_PDF,
+    visits: [],
     created_at: '2026-05-10T10:00:00Z',
   },
   {
@@ -147,6 +153,7 @@ const auctions = [
     occupation: 'Desocupada', origin: 'Judicial', featured: false,
     external_registration_url: 'https://lamartillera.cl/registro',
     doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF, doc_cdv: SAMPLE_PDF, doc_cav: SAMPLE_PDF,
+    visits: [],
     created_at: '2026-04-20T10:00:00Z',
   },
   {
@@ -160,6 +167,7 @@ const auctions = [
     description: 'Camioneta Toyota Hilux 4x4 doble cabina, año 2020, motor 2.8 diésel, 95.000 km.',
     surface: 0, occupation: 'Desocupada', origin: 'Judicial', featured: true,
     external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
+    visits: [],
     created_at: '2026-06-10T10:00:00Z',
   },
   {
@@ -173,6 +181,7 @@ const auctions = [
     description: 'Chevrolet Cruze LTZ 2019, motor 1.4 turbo, 68.000 km. Color gris oscuro.',
     surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: false,
     external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
+    visits: [],
     created_at: '2026-06-11T10:00:00Z',
   },
   {
@@ -186,6 +195,7 @@ const auctions = [
     description: 'Lote completo de equipamiento para restaurante: cocinas industriales, refrigeradores, vajilla.',
     surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: true,
     external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
+    visits: [],
     created_at: '2026-06-13T10:00:00Z',
   },
   {
@@ -199,6 +209,7 @@ const auctions = [
     description: 'Lote de equipos médicos: ecógrafos, camas hospitalarias, monitores. Adjudicado.',
     surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: false,
     external_registration_url: 'https://lamartillera.cl/registro', doc_bases: SAMPLE_PDF, doc_bases_especificas: SAMPLE_PDF,
+    visits: [],
     created_at: '2026-04-10T10:00:00Z',
   },
 ];

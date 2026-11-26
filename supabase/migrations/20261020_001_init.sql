@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS public.auctions (
   doc_cdv                 TEXT,
   doc_cav                 TEXT,
   doc_gravamenes          TEXT,
+  visits                  JSONB       NOT NULL DEFAULT '[]'::jsonb,
   created_at              TIMESTAMPTZ DEFAULT NOW()
 );
 

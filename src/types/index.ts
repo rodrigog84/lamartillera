@@ -27,6 +27,14 @@ export type AuctionOrigin = 'Privado' | 'Judicial' | 'Concursal';
 
 export type Currency = 'CLP' | 'UF';
 
+export type VisitModality = 'Virtual' | 'Presencial';
+
+export interface AuctionVisit {
+  date: string; // YYYY-MM-DD
+  time: string; // HH:mm
+  modality: VisitModality;
+}
+
 export interface AuctionDocument {
   basesGenerales?: string;
   basesEspecificas?: string;
@@ -60,6 +68,8 @@ export interface Auction {
   origin: AuctionOrigin;
   featured: boolean;
   externalRegistrationUrl: string;
+  /** Fechas/horas de visita (pueden ser varias) */
+  visits: AuctionVisit[];
   documents?: AuctionDocument;
   createdAt: string;
 }

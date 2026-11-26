@@ -39,6 +39,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
       cav: SAMPLE_PDF,
       gravamenes: SAMPLE_PDF,
     },
+    visits: [{ date: '2027-03-10', time: '11:00', modality: 'Presencial' }, { date: '2027-03-12', time: '16:30', modality: 'Virtual' }],
     createdAt: '2026-06-01T10:00:00Z',
   },
   {
@@ -73,6 +74,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
       cdv: SAMPLE_PDF,
       cav: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-06-02T10:00:00Z',
   },
   {
@@ -103,6 +105,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
       basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
       cdv: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-06-03T10:00:00Z',
   },
   {
@@ -131,6 +134,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     documents: {
       basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-06-04T10:00:00Z',
   },
   {
@@ -157,6 +161,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {},
+    visits: [],
     createdAt: '2026-06-05T10:00:00Z',
   },
   {
@@ -185,6 +190,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {},
+    visits: [],
     createdAt: '2026-06-06T10:00:00Z',
   },
 
@@ -218,6 +224,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
       cav: SAMPLE_PDF,
       gravamenes: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-05-10T10:00:00Z',
   },
   {
@@ -252,6 +259,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
       cdv: SAMPLE_PDF,
       cav: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-04-20T10:00:00Z',
   },
 
@@ -283,6 +291,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     documents: {
       basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-06-10T10:00:00Z',
   },
   {
@@ -312,6 +321,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     documents: {
       basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-06-11T10:00:00Z',
   },
   {
@@ -338,6 +348,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {},
+    visits: [],
     createdAt: '2026-06-12T10:00:00Z',
   },
 
@@ -368,6 +379,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     documents: {
       basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-05-15T10:00:00Z',
   },
 
@@ -399,6 +411,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     documents: {
       basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-06-13T10:00:00Z',
   },
   {
@@ -428,6 +441,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     documents: {
       basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-06-14T10:00:00Z',
   },
   {
@@ -454,6 +468,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: {},
+    visits: [],
     createdAt: '2026-06-15T10:00:00Z',
   },
 
@@ -484,13 +499,14 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     documents: {
       basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF,
     },
+    visits: [],
     createdAt: '2026-04-10T10:00:00Z',
   },
 ];
 
 const STORAGE_KEY = 'lamartillera_auctions';
 const STORAGE_VERSION_KEY = 'lamartillera_version';
-const CURRENT_VERSION = '3'; // incrementar al agregar nuevos datos de muestra
+const CURRENT_VERSION = '4'; // incrementar al agregar nuevos datos de muestra
 
 export function getAuctions(): Auction[] {
   try {
@@ -505,7 +521,12 @@ export function getAuctions(): Auction[] {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored) as Auction[];
-      return parsed.map(a => ({ ...a, category: a.category ?? ('Inmuebles' as const), documents: a.documents ?? {} }));
+      return parsed.map(a => ({
+        ...a,
+        category: a.category ?? ('Inmuebles' as const),
+        documents: a.documents ?? {},
+        visits: a.visits ?? [],
+      }));
     }
   } catch {
     // ignore parse errors

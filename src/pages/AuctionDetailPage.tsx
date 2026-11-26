@@ -6,6 +6,7 @@ import {
   Home, Building2, CheckCircle, FileText, Download, Loader2,
 } from 'lucide-react';
 import FavoriteButton from '../components/FavoriteButton';
+import VisitRequestModal from '../components/VisitRequestModal';
 import { useAuction } from '../hooks/useAuction';
 import { useAuctions } from '../hooks/useAuctions';
 import { formatPrice, formatGuarantee, formatDate, daysUntilAuction, WHATSAPP_NUMBER } from '../utils/format';
@@ -19,6 +20,7 @@ export default function AuctionDetailPage() {
   const { auctions } = useAuctions();
   const [imgIndex, setImgIndex] = useState(0);
   const [copied, setCopied]     = useState(false);
+  const [showVisitModal, setShowVisitModal] = useState(false);
 
   if (loading) {
     return (
@@ -160,6 +162,46 @@ export default function AuctionDetailPage() {
                 <p className="text-gray-600 leading-relaxed">{auction.description}</p>
               </div>
 
+              {(auction.visits?.length ?? 0) > 0 && (
+                <div className="mt-6 pt-6 border-t border-gray-100">
+                  <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                    <h2 className="font-bold text-lg text-gray-900">Visitas disponibles</h2>
+                    <button
+                      type="button"
+                      onClick={() => setShowVisitModal(true)}
+                      className="text-sm font-semibold text-brand-purple-600 hover:text-brand-purple-700 px-3 py-1.5 rounded-lg hover:bg-brand-purple-50 transition-colors"
+                    >
+                      Solicitar visita
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {auction.visits.map((visit, idx) => (
+                      <div key={idx} className="flex flex-wrap items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
+                        <div className="flex items-center gap-2 text-sm text-gray-800">
+                          <Calendar className="w-4 h-4 text-brand-purple-500" />
+                          <span className="font-medium">{formatDate(visit.date)}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <Clock className="w-4 h-4 text-brand-blue-500" />
+                          <span>{visit.time} hrs</span>
+                        </div>
+                        <span className={clsx(
+                          'badge text-xs',
+                          visit.modality === 'Virtual'
+                            ? 'bg-brand-blue-50 text-brand-blue-700'
+                            : 'bg-brand-purple-50 text-brand-purple-700'
+                        )}>
+                          {visit.modality}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-3">
+                    Elige una de las fechas disponibles y envía tu solicitud. Te contactaremos para confirmarla.
+                  </p>
+                </div>
+              )}
+
               <div className="mt-6 pt-6 border-t border-gray-100 grid sm:grid-cols-2 gap-3">
                 <div className="flex items-center gap-3"><Building2 className="w-5 h-5 text-gray-400" /><div><p className="text-xs text-gray-500">Tipo de bien</p><p className="font-medium text-gray-800">{auction.propertyType}</p></div></div>
                 <div className="flex items-center gap-3"><Home className="w-5 h-5 text-gray-400" /><div><p className="text-xs text-gray-500">Ocupación</p><p className="font-medium text-gray-800">{auction.occupation}</p></div></div>
@@ -254,6 +296,16 @@ export default function AuctionDetailPage() {
                 <div className="w-full block text-center py-4 bg-gray-100 text-gray-500 font-bold rounded-2xl cursor-not-allowed mb-3">{auction.status}</div>
               )}
 
+              {(auction.visits?.length ?? 0) > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowVisitModal(true)}
+                  className="w-full block text-center py-3.5 border-2 border-brand-purple-500 text-brand-purple-600 font-bold rounded-2xl hover:bg-brand-purple-50 transition-colors mb-3"
+                >
+                  Solicitar visita
+                </button>
+              )}
+
               <div className="mb-3">
                 <FavoriteButton auctionId={auction.id} variant="detail" />
               </div>
@@ -282,6 +334,15 @@ export default function AuctionDetailPage() {
         )}
       </div>
 
+      {showVisitModal && (auction.visits?.length ?? 0) > 0 && (
+        <VisitRequestModal
+          auctionId={auction.id}
+          auctionTitle={auction.title}
+          lotNumber={auction.lotNumber}
+          visits={auction.visits}
+          onClose={() => setShowVisitModal(false)}
+        />
+      )}
     </div>
   );
 }
