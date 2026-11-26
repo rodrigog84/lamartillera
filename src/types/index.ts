@@ -23,7 +23,7 @@ export type PropertyType =
 
 export type AuctionStatus = 'Disponible' | 'Adjudicada' | 'Próximamente';
 
-export type AuctionOrigin = 'Privado' | 'Judicial' | 'Concursal';
+export type AuctionOrigin = 'Privado' | 'Judicial' | 'Liquidación Concursal';
 
 export type Currency = 'CLP' | 'UF';
 

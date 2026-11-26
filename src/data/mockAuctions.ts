@@ -1,6 +1,6 @@
 import { Auction, AuctionOrigin } from '../types';
 
-export const AUCTION_ORIGINS: AuctionOrigin[] = ['Privado', 'Judicial', 'Concursal'];
+export const AUCTION_ORIGINS: AuctionOrigin[] = ['Privado', 'Judicial', 'Liquidación Concursal'];
 
 const SAMPLE_PDF = 'https://www.africau.edu/images/default/sample.pdf';
 
@@ -213,7 +213,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
       'https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=800&q=80',
     ],
     description: 'Chevrolet Cruze LTZ 2019, motor 1.4 turbo, 68.000 km. Color gris oscuro. Mantenciones al día.',
-    surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: false,
+    surface: 0, occupation: 'Desocupada', origin: 'Liquidación Concursal', featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF },
     visits: [],
@@ -237,7 +237,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
       'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800&q=80',
     ],
     description: 'Lote completo de equipamiento para restaurante: cocinas industriales, refrigeradores, vajilla para 80 personas, muebles de salón. Todo en buen estado.',
-    surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: true,
+    surface: 0, occupation: 'Desocupada', origin: 'Liquidación Concursal', featured: true,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF },
     visits: [],
@@ -257,7 +257,7 @@ export const SAMPLE_AUCTIONS: Auction[] = [
     auctionDate: '2026-05-15',
     images: ['https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=800&q=80'],
     description: 'Lote de equipos médicos: ecógrafos, camas hospitalarias, monitores multiparamétricos y equipos de esterilización. Proceso adjudicado exitosamente.',
-    surface: 0, occupation: 'Desocupada', origin: 'Concursal', featured: false,
+    surface: 0, occupation: 'Desocupada', origin: 'Liquidación Concursal', featured: false,
     externalRegistrationUrl: 'https://lamartillera.cl/registro',
     documents: { basesGenerales: SAMPLE_PDF, basesEspecificas: SAMPLE_PDF },
     visits: [],

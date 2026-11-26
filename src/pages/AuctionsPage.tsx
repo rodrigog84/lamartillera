@@ -160,7 +160,7 @@ export default function AuctionsPage() {
               </FilterSection>
 
               <FilterSection title="Origen">
-                {(['Privado', 'Judicial', 'Concursal'] as AuctionOrigin[]).map(o => (
+                {(['Privado', 'Judicial', 'Liquidación Concursal'] as AuctionOrigin[]).map(o => (
                   <label key={o} className="flex items-center gap-2.5 cursor-pointer group">
                     <input type="checkbox" checked={selectedOrigins.includes(o)} onChange={() => toggleOrigin(o)} className="accent-brand-purple-500" />
                     <span className="text-sm text-gray-600 group-hover:text-gray-900">{o}</span>
@@ -251,7 +251,7 @@ export default function AuctionsPage() {
                     ))}
                   </FilterSection>
                   <FilterSection title="Origen">
-                    {(['Privado', 'Judicial', 'Concursal'] as AuctionOrigin[]).map(o => (
+                    {(['Privado', 'Judicial', 'Liquidación Concursal'] as AuctionOrigin[]).map(o => (
                       <label key={o} className="flex items-center gap-2.5 cursor-pointer">
                         <input type="checkbox" checked={selectedOrigins.includes(o)} onChange={() => toggleOrigin(o)} className="accent-brand-purple-500" />
                         <span className="text-sm text-gray-600">{o}</span>

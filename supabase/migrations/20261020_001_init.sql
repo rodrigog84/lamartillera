@@ -243,7 +243,7 @@ INSERT INTO public.auctions (
     'https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=800&q=80'
   ],
   'Chevrolet Cruze LTZ 2019, motor 1.4 turbo, 68.000 km. Color gris oscuro. Mantenciones al día.',
-  0, NULL, NULL, NULL, 'Desocupada', 'Concursal', false,
+  0, NULL, NULL, NULL, 'Desocupada', 'Liquidación Concursal', false,
   'https://lamartillera.cl/registro',
   'https://www.africau.edu/images/default/sample.pdf',
   '2026-06-11T10:00:00Z'
@@ -261,7 +261,7 @@ INSERT INTO public.auctions (
     'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800&q=80'
   ],
   'Lote completo de equipamiento para restaurante: cocinas industriales, refrigeradores, vajilla para 80 personas, muebles de salón. Todo en buen estado.',
-  0, NULL, NULL, NULL, 'Desocupada', 'Concursal', true,
+  0, NULL, NULL, NULL, 'Desocupada', 'Liquidación Concursal', true,
   'https://lamartillera.cl/registro',
   'https://www.africau.edu/images/default/sample.pdf',
   '2026-06-13T10:00:00Z'
@@ -274,7 +274,7 @@ INSERT INTO public.auctions (
   9500000, 'CLP', 1000000, '2026-05-15',
   ARRAY['https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=800&q=80'],
   'Lote de equipos médicos: ecógrafos, camas hospitalarias, monitores multiparamétricos y equipos de esterilización. Proceso adjudicado exitosamente.',
-  0, NULL, NULL, NULL, 'Desocupada', 'Concursal', false,
+  0, NULL, NULL, NULL, 'Desocupada', 'Liquidación Concursal', false,
   'https://lamartillera.cl/registro',
   'https://www.africau.edu/images/default/sample.pdf',
   '2026-04-10T10:00:00Z'

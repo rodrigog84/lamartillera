@@ -12,7 +12,7 @@ import { supabase } from '../lib/supabase';
 import { Auction, AuctionCategory, AuctionOrigin, AuctionStatus, AuctionVisit, Currency, PropertyType, VisitModality } from '../types';
 import { REGIONS, AUCTION_CATEGORIES, CATEGORY_PROPERTY_TYPES } from '../utils/format';
 
-const AUCTION_ORIGINS: AuctionOrigin[] = ['Privado', 'Judicial', 'Concursal'];
+const AUCTION_ORIGINS: AuctionOrigin[] = ['Privado', 'Judicial', 'Liquidación Concursal'];
 import clsx from 'clsx';
 
 type FormData = Omit<Auction, 'id' | 'createdAt'>;

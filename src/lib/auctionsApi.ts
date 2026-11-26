@@ -60,7 +60,7 @@ function rowToAuction(row: AuctionRow): Auction {
     bathrooms: row.bathrooms ?? undefined,
     parkingSpaces: row.parking_spaces ?? undefined,
     occupation: row.occupation,
-    origin: row.origin,
+    origin: row.origin === 'Concursal' ? 'Liquidación Concursal' : row.origin,
     featured: row.featured,
     externalRegistrationUrl: row.external_registration_url,
     visits: Array.isArray(row.visits) ? row.visits : [],

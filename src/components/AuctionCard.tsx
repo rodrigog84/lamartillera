@@ -66,7 +66,7 @@ export default function AuctionCard({ auction }: Props) {
         {/* Origin badge */}
         <span className={clsx('self-start badge mb-2 text-white text-[10px]',
           auction.origin === 'Judicial'  ? 'bg-amber-600' :
-          auction.origin === 'Concursal' ? 'bg-red-700'   : 'bg-gray-500'
+          auction.origin === 'Liquidación Concursal' ? 'bg-red-700'   : 'bg-gray-500'
         )}>
           {auction.origin ?? 'Privado'}
         </span>

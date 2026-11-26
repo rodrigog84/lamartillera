@@ -133,7 +133,7 @@ export default function AuctionDetailPage() {
                 <span className="badge bg-brand-blue-50 text-brand-blue-600">{auction.category ?? 'Inmuebles'}</span>
                 <span className={clsx('badge text-white',
                   auction.origin === 'Judicial'  ? 'bg-amber-600' :
-                  auction.origin === 'Concursal' ? 'bg-red-700'   : 'bg-gray-500'
+                  auction.origin === 'Liquidación Concursal' ? 'bg-red-700'   : 'bg-gray-500'
                 )}>Remate {auction.origin ?? 'Privado'}</span>
                 {auction.featured && <span className="badge bg-brand-blue-100 text-brand-blue-700">Destacado</span>}
               </div>
